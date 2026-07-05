@@ -68,6 +68,8 @@ public class PlayerLook : NetworkBehaviour
 
         Vector2 lookDelta = lookAction.ReadValue<Vector2>() * mouseSensitivity;
 
+        // dumendeyken de govde donuyor (BoatCamera govdenin child'i oldugu icin onunla doner) -
+        // bilerek boyle, ayri bir kamera-only rotasyon denemesi daha kotu hissettirmisti
         transform.Rotate(Vector3.up * lookDelta.x);
 
         pitch = Mathf.Clamp(pitch - lookDelta.y, minPitch, maxPitch);

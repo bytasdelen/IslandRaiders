@@ -8,6 +8,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] private float range = 50f;
     [SerializeField] private float fireRate = 4f;
     [SerializeField] private bool automatic;
+    [SerializeField] private int maxAmmo = 12;
     [SerializeField] private Transform muzzle;
 
     public string WeaponName => weaponName;
@@ -15,5 +16,6 @@ public class Weapon : MonoBehaviour
     public float Range => range;
     public float FireRate => fireRate;
     public bool Automatic => automatic;
+    public int MaxAmmo => maxAmmo;
     public Transform Muzzle => muzzle;
 }

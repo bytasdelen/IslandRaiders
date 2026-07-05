@@ -9,12 +9,14 @@ public class PlayerRider : NetworkBehaviour
 {
     [SerializeField] private CharacterController characterController;
     [SerializeField] private PlayerController playerController;
-    [SerializeField] private PlayerLook playerLook;
+    [SerializeField] private PlayerWeapon playerWeapon;
     [SerializeField] private GameObject fpsCamera;
     [SerializeField] private GameObject boatCamera;
     [SerializeField] private float groundCheckDistance = 1.5f;
 
-    private BoatController currentBoat;
+    private IShipDeck currentBoat;
+    public IShipDeck CurrentShip => currentBoat;
+
     private bool isDriving;
     private Transform pendingSeat;
     private Vector3 lastBoatPosition;
@@ -27,10 +29,10 @@ public class PlayerRider : NetworkBehaviour
             return;
         }
 
-        BoatController boatBelow = null;
+        IShipDeck boatBelow = null;
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance))
         {
-            boatBelow = hit.collider.GetComponentInParent<BoatController>();
+            boatBelow = hit.collider.GetComponentInParent<IShipDeck>();
         }
 
         if (boatBelow == currentBoat)
@@ -41,8 +43,8 @@ public class PlayerRider : NetworkBehaviour
 
         if (boatBelow != null)
         {
-            lastBoatPosition = boatBelow.transform.position;
-            lastBoatRotation = boatBelow.transform.rotation;
+            lastBoatPosition = boatBelow.NetworkObject.transform.position;
+            lastBoatRotation = boatBelow.NetworkObject.transform.rotation;
             SetParentServerRpc(boatBelow.NetworkObject);
         }
         else
@@ -58,7 +60,7 @@ public class PlayerRider : NetworkBehaviour
             return;
         }
 
-        Transform boat = currentBoat.transform;
+        Transform boat = currentBoat.NetworkObject.transform;
 
         // dumendeyken parent tasir (CC kapali); delta birikmesin diye referans guncel tutulur
         if (isDriving || !characterController.enabled)
@@ -119,7 +121,8 @@ public class PlayerRider : NetworkBehaviour
 
         characterController.enabled = !driving;
         playerController.enabled = !driving;
-        playerLook.enabled = !driving;
+        playerWeapon.enabled = !driving;
+        // playerLook acik kalir: dumendeyken de fare govdeyi (ve onunla BoatCamera'yi) dondurur
         fpsCamera.SetActive(!driving);
         boatCamera.SetActive(driving);
 

@@ -5,22 +5,28 @@ using UnityEngine;
 public class WorldItem : NetworkBehaviour
 {
     [SerializeField] private int itemId;
+    // -1 = silah degil ya da mermi onemsiz; TryAddItem bu durumda max mermiyle baslatir
+    [SerializeField] private int ammo = -1;
 
     private readonly NetworkVariable<int> networkItemId = new NetworkVariable<int>();
+    private readonly NetworkVariable<int> networkAmmo = new NetworkVariable<int>();
 
     public int ItemId => networkItemId.Value;
+    public int Ammo => networkAmmo.Value;
 
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
             networkItemId.Value = itemId;
+            networkAmmo.Value = ammo;
         }
     }
 
-    // drop ile spawn edilirken Spawn'dan once cagrilir
-    public void Configure(int id)
+    // drop ile spawn edilirken Spawn'dan once cagirilir
+    public void Configure(int id, int ammoCount = -1)
     {
         itemId = id;
+        ammo = ammoCount;
     }
 }

@@ -27,6 +27,8 @@ public class ConnectionApprovalHandler : MonoBehaviour
         response.Approved = true;
         response.CreatePlayerObject = true;
 
+        SaveSystem.RegisterName(request.ClientNetworkId, System.Text.Encoding.UTF8.GetString(request.Payload));
+
         if (spawnPositions.Length > 0)
         {
             response.Position = spawnPositions[spawnIndex % spawnPositions.Length];

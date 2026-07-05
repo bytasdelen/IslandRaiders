@@ -7,6 +7,7 @@ public class ItemDefinition
     public Sprite Icon;
     public GameObject HeldPrefab;   // elde gosterilecek model (silahsa Weapon componenti icerir)
     public GameObject WorldPrefab;  // yere birakilinca spawn edilecek pickup objesi
+    public bool IsChest;            // E ile ac, rastgele para kazandirir, envanterden kalkar
 }
 
 // tum item turlerinin tek listesi; network'te sadece itemId (liste index'i) tasinir

@@ -233,6 +233,7 @@ MonoBehaviour:
   range: 85
   fireRate: 10
   automatic: 1
+  maxAmmo: 30
   muzzle: {fileID: 4217986790184481967}
 --- !u!1 &5742756565164879687
 GameObject:

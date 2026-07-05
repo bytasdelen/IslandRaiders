@@ -5,7 +5,9 @@ public class PlayerHealth : NetworkBehaviour, IDamageable
 {
     [SerializeField] private int maxHealth = 100;
     [SerializeField] private float headMultiplier = 2f;
+    [SerializeField] private PlayerNotifications notifications;
 
+    public int MaxHealth => maxHealth;
     public readonly NetworkVariable<int> CurrentHealth = new NetworkVariable<int>();
 
     // bolgeye gelen hasari yuzde olarak azaltir (0 = korumasiz, 0.5 = %50 azaltma)
@@ -78,6 +80,7 @@ public class PlayerHealth : NetworkBehaviour, IDamageable
     private void Respawn()
     {
         CurrentHealth.Value = maxHealth;
+        notifications.NotifyOwner("Öldünüz!");
 
         ClientRpcParams targetOwnerOnly = new ClientRpcParams
         {

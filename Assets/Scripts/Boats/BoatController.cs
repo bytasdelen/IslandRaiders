@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 // gemiyi hareket ettirir; sadece dumeni tutan owner surer.
 // dalga dahil tum hareket root'a uygulanir, NetworkTransform herkese senkronlar.
-public class BoatController : NetworkBehaviour
+public class BoatController : NetworkBehaviour, IShipDeck
 {
     [SerializeField] private InputActionAsset inputActions;
     [SerializeField] private SteeringWheel steeringWheel;

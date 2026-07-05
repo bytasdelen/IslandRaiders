@@ -8,9 +8,14 @@ public class PlayerWeapon : NetworkBehaviour
     [SerializeField] private Transform aimSource;
     [SerializeField] private HeldItemDisplay heldItemDisplay;
     [SerializeField] private BulletVisual bulletPrefab;
+    [SerializeField] private PlayerRider rider;
+    [SerializeField] private PlayerInventory inventory;
+    [SerializeField] private NotificationUI notificationUI;
+    [SerializeField] private PlayerNotifications notifications;
 
     private InputAction attackAction;
     private float nextFireTime;
+    private float nextEmptyAmmoWarningTime;
 
     public override void OnNetworkSpawn()
     {
@@ -44,6 +49,17 @@ public class PlayerWeapon : NetworkBehaviour
         {
             return;
         }
+
+        if (inventory.GetSelectedAmmo() <= 0)
+        {
+            // otomatik silahta basili tutulunca her frame tetiklenmesin diye kucuk bir cooldown
+            if (Time.time >= nextEmptyAmmoWarningTime)
+            {
+                notificationUI.Show("Insufficient ammo");
+                nextEmptyAmmoWarningTime = Time.time + 1f;
+            }
+            return;
+        }
         nextFireTime = Time.time + 1f / weapon.FireRate;
 
         // isabet kameradan (crosshair), mermi gorseli silahin namlusundan cikar
@@ -55,10 +71,11 @@ public class PlayerWeapon : NetworkBehaviour
     {
         // silah statlari sunucudaki kendi kopyasindan okunur (guvenli)
         Weapon weapon = heldItemDisplay.CurrentWeapon;
-        if (weapon == null)
+        if (weapon == null || inventory.GetSelectedAmmo() <= 0)
         {
             return;
         }
+        inventory.ConsumeSelectedAmmo();
 
         bool hitSomething = Physics.Raycast(origin, direction, out RaycastHit hit, weapon.Range);
 
@@ -69,6 +86,12 @@ public class PlayerWeapon : NetworkBehaviour
             {
                 hitbox.TakeHit(weapon.Damage, OwnerClientId);
             }
+        }
+
+        // sadece gemideyken ates edersek o geminin mürettebatini uyarir, baska gemiye sizmaz
+        if (rider.CurrentShip != null && CrewAlertSystem.Notify(origin, rider.CurrentShip))
+        {
+            notifications.NotifyOwner("Mürettebat saldırıya geçti, dikkatli ol!");
         }
 
         Vector3 endPoint = hitSomething ? hit.point : origin + direction * weapon.Range;
