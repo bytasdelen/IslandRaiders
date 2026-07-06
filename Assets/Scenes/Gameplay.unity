@@ -524,12 +524,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   aiShipPrefab: {fileID: 5535418517726532174, guid: 29cb244237fc052449d14928de23d025, type: 3}
-  initialAiShipCount: 2
+  initialAiShipCount: 3
   playerBoatPrefab: {fileID: 5535418517726532174, guid: 8cf48946090cee84bbcfe922002f59c7, type: 3}
   playerBoatSpawnPosition: {x: 33, y: -3.5, z: 5.5}
   initialPlayerBoatCount: 1
   itemDatabase: {fileID: 11400000, guid: 878fb72491db7e04cb3803f1dd4a0538, type: 2}
-  initialWeaponCount: 12
+  initialWeaponCount: 18
 --- !u!4 &600736005
 Transform:
   m_ObjectHideFlags: 0
