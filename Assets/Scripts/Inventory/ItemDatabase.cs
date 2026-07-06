@@ -5,12 +5,12 @@ public class ItemDefinition
 {
     public string DisplayName;
     public Sprite Icon;
-    public GameObject HeldPrefab;   // elde gosterilecek model (silahsa Weapon componenti icerir)
-    public GameObject WorldPrefab;  // yere birakilinca spawn edilecek pickup objesi
-    public bool IsChest;            // E ile ac, rastgele para kazandirir, envanterden kalkar
+    public GameObject HeldPrefab;   // elde gösterilecek model
+    public GameObject WorldPrefab;  // yere bırakılınca spawn edilecek pickup objesi
+    public bool IsChest;            
 }
 
-// tum item turlerinin tek listesi; network'te sadece itemId (liste index'i) tasinir
+// tüm item türlerinin tek listesi; network'te sadece itemId (liste index'i) taşınır
 [CreateAssetMenu(menuName = "Game/Item Database")]
 public class ItemDatabase : ScriptableObject
 {

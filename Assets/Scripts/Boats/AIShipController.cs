@@ -3,59 +3,70 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 
-// yapay zeka gemisi; adalar arasinda NavMesh uzerinden otomatik yol bulur, hedef adayi
-// rastgele secer, sadece ada duraklarinda (kalkis + varis) bir sure bekler - aradaki yolda
-// durmadan gider. Yanasma noktalari (dock) dolu ise bosalana kadar bekler. Gemiler arasi
-// carpisma NavMeshAgent'in dahili avoidance'i ile onlenir.
-// NavMeshAgent SADECE yol + kacinma yonunu hesaplar (desiredVelocity); gemi bu yone dogru
-// kendi donus yaricapiyla, yalniz burnu yonunde ilerler ve dumen ancak yol alirken tutar
-// (BoatController'daki hiz orantili donusun aynisi) - duran gemi yerinde donemez, hep
-// ileri gidip yay cizer. Hedefe yaklasinca yavaslayip hedefe suzulur (liman manevrasi),
-// boylece genis donus yaricapi yuzunden hedefin etrafinda donup durmaz. Yukseklik (dalga)
-// ve yatma transform'a bindirilir. Hareket sunucuda, NetworkTransform herkese senkronlar.
+// yapay zeka gemisi; adalar arasında NavMesh üzerinden otomatik yol bulur ve ada duraklarında
+// bir süre bekler. Seyir ile YANASMA ayrı: açık denizde NavMesh + araç kinematigi (desiredVelocity
+// yönüne, kendi dönüş yarıçapıyla, yalnız burnü yönünde ilerler); ama son metrelerde kinematik
+// bırakılır - gemi deterministik bir kübik Bezier eğrisi üzerinde ilerler. Eğri geminin O ANKI
+// pozunda başlar, dock'un önünde adaya TAM hızalı biter; girış açısı ne olursa olsun sonuç hep aynı.
+// Kalkışta da simetrik: gemi önce denize geri çıkıp burnunu açık suya çevirir, sonra NavMesh devralır.
+
 [RequireComponent(typeof(NavMeshAgent))]
 public class AIShipController : NetworkBehaviour, IShipDeck
 {
-    private enum State { Docked, Traveling, WaitingForDock, Docking }
+    private enum State { Docked, Traveling, WaitingForDock, Berthing, Undocking }
 
-    [Header("Duraklama")]
-    [SerializeField] private float dockWaitTime = 10f;      // adada bekleme (ilk kalkis / son durak)
-    [SerializeField] private float arriveDistance = 1.5f;   // hedefe varmis sayilma mesafesi
-    [SerializeField] private float slowdownDistance = 12f;  // hedefe bu mesafede yavaslayip suzulmeye baslar
+    [Header("Stations")]
+    [SerializeField] private float dockWaitTime = 10f;      // adada bekleme (ilk kalkış / son durak)
+    [SerializeField] private float arriveDistance = 1.5f;   // yaklaşma noktasına varmış sayılma mesafesi
+    [SerializeField] private float slowdownDistance = 12f;  // seyir sonunda bu mesafede yavaşlar
+    [SerializeField] private float dockStandoff = 4f;       // dock noktasından bu kadar önce durur (burun karaya girmesin)
+    [SerializeField] private float berthSpeed = 4f;         // yanasma/kalkış eğrisi ilerleme hızı
+    [SerializeField] private float minBerthTime = 3f;       // manevra en az bu kadar sürer: kısa eğride ani "yerinde dönüş"ü engeller
 
-    [Header("Baslangic")]
-    [SerializeField] private Island startIsland;          // spawn'da yanasacagi ada
+    [Header("Start")]
+    [SerializeField] private Island startIsland;          // spawn'da yanasacağı ada
 
-    [Header("Dalga hareketi")]
+    [Header("Ship height")]
+    [SerializeField] private float heightOffset = 0f;     // gemiyi dikey kaydırır (negatif = suya gömer)
+
+    [Header("Wave motion")]
     [SerializeField] private float bobHeight = 0.15f;
     [SerializeField] private float bobSpeed = 1f;
     [SerializeField] private float bankAngle = 6f;
     [SerializeField] private float bankSmooth = 2f;
-    [SerializeField] private float turnRate = 35f;        // burnun donme hizi (derece/sn) - dusuk = genis, gemi gibi kavis
-    [SerializeField] [Range(0f, 1f)] private float minTurnSpeed = 0.4f; // keskin donuste hizin inecegi taban (gemi donerken yavaslar)
-    [SerializeField] private float steerSmooth = 2f;      // rota yonundeki ani sicramalari (kose/kacinma) yumusatma hizi
+    [Header("Maneuver")]
+    [SerializeField] private float turnRate = 35f;        // maksimum dönüş hızı
+    [SerializeField] private float minTurnRadius = 6f;    // en dar dönüş yarıçapı
 
     private NavMeshAgent agent;
-    private NavMeshPath scratchPath;   // ulasabilirlik kontrolu icin tekrar kullanilan tampon
+    private NavMeshPath scratchPath;   
 
     private State state;
-    private Island currentIsland;      // su an yanasik / kalktigi ada
-    private Island destinationIsland;  // yolda ise hedef ada
+    private Island currentIsland;      
+    private Island destinationIsland; 
     private int dockSlot = -1;
     private float resumeTime;
+    private Vector3 pendingApproach;   
 
-    private float baseHeight;          // dalga salinimi bu yukseklik etrafinda olur
+    private float baseHeight;          // dalga salınımı bu yükseklik etrafında olur
     private float currentBank;
     private Quaternion heading;
-    private Vector3 smoothedSteer;     // yumusatilmis rota yonu/siddeti (dogal hizlanma-yavaslama da buradan)
+    private float currentSpeed;        // yumuşak hızlanma-yavaşlama için mevcut ilerleme hızı
+
+    // scripted manevra (yanasma / kalkış): NavMesh ve kinematik devre dışı, gemi bu eğriyi izler
+    private Vector3 mP0, mP1, mP2, mP3;
+    private float mT;
+    private float mDuration;           // manevranın toplam süresi (sn) - hız değil süre ilerletir
+    private bool mUseBezier;           // true = yanasma (burun tanjantı izler) / false = kalkış (burun slerp döner)
+    private Quaternion mStartHeading, mEndHeading;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-        // Y (dalga), rotasyon (burun -Z) ve yatma bizde; agent yalniz XZ path/kacinma hesaplasin
+        // Y (dalga), rotasyon (burun -Z) ve yatma bizde; agent yalnız XZ path/kaçınma hesaplasın
         agent.updatePosition = false;
         agent.updateRotation = false;
-        // client'lar hareketi NetworkTransform'dan alir; agent sadece sunucuda calisir
+        // client'lar hareketi NetworkTransform'dan alır; agent sadece sunucuda çalışır
         agent.enabled = false;
     }
 
@@ -69,7 +80,6 @@ public class AIShipController : NetworkBehaviour, IShipDeck
 
         heading = transform.rotation;
 
-        // baslangic adasina yanas; slot bulunursa dock noktasina otur
         Vector3 startPos = transform.position;
         currentIsland = startIsland;
         if (currentIsland != null)
@@ -110,12 +120,17 @@ public class AIShipController : NetworkBehaviour, IShipDeck
             case State.WaitingForDock:
                 TickWaitingForDock();
                 break;
-            case State.Docking:
-                TickDocking();
+            case State.Berthing:
+            case State.Undocking:
+                TickManeuver();
                 break;
         }
 
-        ApplyMotion();
+        // yanasma/kalkış eğrisi hareketini kendi yapar; diğerleri kinematikle
+        if (state == State.Docked || state == State.Traveling || state == State.WaitingForDock)
+        {
+            ApplyMotion();
+        }
     }
 
     private void TickDocked()
@@ -126,7 +141,6 @@ public class AIShipController : NetworkBehaviour, IShipDeck
         }
     }
 
-    // random bir hedef ada secip yola cikar; hedef yoksa biraz sonra tekrar dener
     private void BeginNextLeg()
     {
         if (currentIsland == null)
@@ -142,15 +156,35 @@ public class AIShipController : NetworkBehaviour, IShipDeck
             return;
         }
 
-        currentIsland.ReleaseDock(dockSlot, this);
-        dockSlot = -1;
+        // önce mevcut adadan denize geri çık: burun karaya dönükken ileri gidersek karaya bineriz
+        int leavingSlot = dockSlot;
+        Vector3 seaward = leavingSlot >= 0
+            ? currentIsland.SeawardDir(leavingSlot)
+            : (transform.position - currentIsland.transform.position);
+        seaward.y = 0f;
+        if (seaward.sqrMagnitude < 0.01f)
+        {
+            seaward = Vector3.forward;
+        }
+        seaward.Normalize();
+        Vector3 seaExit = leavingSlot >= 0
+            ? currentIsland.ApproachPointForDock(leavingSlot)
+            : currentIsland.ApproachPointFor(transform.position);
 
+        currentIsland.ReleaseDock(dockSlot, this);
         destinationIsland = destination;
-        agent.SetDestination(destination.ApproachPoint.position);
-        state = State.Traveling;
+
+        // hedef adada bir dock kap; onun önündeki noktaya, dolu ise genel yaklaşma noktasına git
+        dockSlot = destination.TryReserveDock(this);
+        pendingApproach = dockSlot >= 0
+            ? destination.ApproachPointForDock(dockSlot)
+            : destination.ApproachPointFor(transform.position);
+
+        StartUndock(seaExit, seaward);
+        state = State.Undocking;
     }
 
-    // mevcut ada haric, NavMesh uzerinden yol bulunabilen adalardan rastgele birini secer
+    // mevcut ada haric, NavMesh üzerinden yol bulunabilen adalardan rastgele birini seçer
     private Island PickDestination()
     {
         var candidates = new List<Island>();
@@ -158,12 +192,12 @@ public class AIShipController : NetworkBehaviour, IShipDeck
 
         foreach (Island island in Island.All)
         {
-            if (island == currentIsland || island.ApproachPoint == null)
+            if (island == currentIsland)
             {
                 continue;
             }
 
-            if (NavMesh.CalculatePath(from, island.ApproachPoint.position, NavMesh.AllAreas, scratchPath)
+            if (NavMesh.CalculatePath(from, island.ApproachPointFor(from), NavMesh.AllAreas, scratchPath)
                 && scratchPath.status == NavMeshPathStatus.PathComplete)
             {
                 candidates.Add(island);
@@ -181,18 +215,22 @@ public class AIShipController : NetworkBehaviour, IShipDeck
         }
     }
 
-    // hedef adanin yaklasma noktasina varildi: bos slot varsa yanas, yoksa bekle
+    // yaklaşma noktasına varıldı: dock kapalıysa (kalkışta kapılmıştı) yanasma eğrisine geç;
+    // yoksa şimdi bir dock kapmayı dene, o da yoksa bekle
     private void TryDockOrWait()
     {
-        dockSlot = destinationIsland.TryReserveDock(this);
+        if (dockSlot < 0)
+        {
+            dockSlot = destinationIsland.TryReserveDock(this);
+        }
+
         if (dockSlot >= 0)
         {
-            agent.SetDestination(destinationIsland.GetDockPoint(dockSlot).position);
-            state = State.Docking;
+            StartDockBerth();
         }
         else
         {
-            // yol birakilir ki agent gemiyi hedefe cekmeye devam etmesin, gemi suzulup dursun
+            // yol bırakılır ki agent gemiyi hedefe çekmeye devam etmesin, gemi süzülüp dursun
             agent.ResetPath();
             state = State.WaitingForDock;
         }
@@ -200,25 +238,24 @@ public class AIShipController : NetworkBehaviour, IShipDeck
 
     private void TickWaitingForDock()
     {
-        // yaklasma noktasinda bekler (agent orada durdu), slot bosaldigi frame yanasmaya baslar
+        // yaklaşma noktasında bekler, slot boşaldığı frame yanasma yaya başlar
         dockSlot = destinationIsland.TryReserveDock(this);
         if (dockSlot >= 0)
         {
-            agent.SetDestination(destinationIsland.GetDockPoint(dockSlot).position);
-            state = State.Docking;
+            StartDockBerth();
         }
     }
 
-    private void TickDocking()
+    // Yanasma: dock'un önündeki duruş noktasına, adaya tam hızalı biteçek bir Bezier eğrisi kur.
+    // P0 = şu anki poz, P1 = burun yönünde çıkış, P2 = deniz tarafından düz giriş, P3 = duruş noktası.
+    private void StartDockBerth()
     {
-        if (ReachedDestination())
-        {
-            agent.ResetPath();
-            currentIsland = destinationIsland;
-            destinationIsland = null;
-            state = State.Docked;
-            resumeTime = Time.time + dockWaitTime;
-        }
+        Vector3 dockPos = destinationIsland.GetDockPoint(dockSlot).position;
+        Vector3 seaward = destinationIsland.SeawardDir(dockSlot);
+        Vector3 endPos = dockPos + seaward * dockStandoff; // burun karaya girmesin diye biraz önde
+        agent.ResetPath();
+        StartBezierBerth(endPos, -seaward);                // burun adaya dönük (deniz yönünün tersi) biter
+        state = State.Berthing;
     }
 
     private bool ReachedDestination()
@@ -226,65 +263,198 @@ public class AIShipController : NetworkBehaviour, IShipDeck
         return !agent.pathPending && agent.remainingDistance <= arriveDistance;
     }
 
-    // agent yol + kacinma yonunu (desiredVelocity) verir; yon yumusatilir, gemi yalniz burnu
-    // (-Z) yonunde ilerler, dumen ancak yol alirken tutar (duran gemi yerinde donemez).
-    // Hedefe yaklasinca yavaslayip hedefe suzulur - genis donus yaricapi yuzunden hedefin
-    // etrafinda sonsuza kadar donmesin diye. Konum agent uzerinden navmesh'e kelepcelenir.
+    // Araç kinematigi (yalnız seyir): gemi burnü (-Z) yönünde ilerler, dönüş hızı ilerleme hızına
+    // bağlı (dönüş = hız / yarıçap). Hız sıfıra yakınsa dönüş de sıfıra yakın -> gemi olduğu yerde
+    // dönemez, keskin açıda yay çizer. Adım navmesh'e kelepçelenir. Dalga + yatma en son bindirilir.
     private void ApplyMotion()
     {
-        Vector3 desired = agent.desiredVelocity;
-        desired.y = 0f;
+        bool traveling = state == State.Traveling;
 
-        // hedefe yaklasma orani: 0 = serbest seyir, 1 = hedefin dibinde (liman manevrasi)
-        float approach = 0f;
-        if (agent.hasPath && !agent.pathPending && !float.IsInfinity(agent.remainingDistance))
+        // hedef hız: seyirde tam gaz; sadece yolun son düzlüğünde yavaşlar
+        float targetSpeed = 0f;
+        if (traveling)
         {
-            approach = Mathf.Clamp01(1f - agent.remainingDistance / slowdownDistance);
+            targetSpeed = agent.speed;
+            if (agent.hasPath && !agent.pathPending && !float.IsInfinity(agent.remainingDistance))
+            {
+                float slow = Mathf.Clamp01(agent.remainingDistance / slowdownDistance);
+                targetSpeed *= Mathf.Lerp(0.25f, 1f, slow);
+            }
         }
-        desired *= Mathf.Lerp(1f, 0.2f, approach);
-
-        // kose gecisi / kacinma kaynakli ani yon sicramalarini yumusat; buyukluk de
-        // yumusadigi icin dogal hizlanma-yavaslama bedavaya gelir
-        smoothedSteer = Vector3.Lerp(smoothedSteer, desired, steerSmooth * Time.deltaTime);
+        currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, agent.acceleration * Time.deltaTime);
 
         Vector3 bow = heading * Vector3.back;
         bow.y = 0f;
         bow.Normalize();
 
-        float steerMag = smoothedSteer.magnitude;
-        Vector3 steerDir = steerMag > 0.01f ? smoothedSteer / steerMag : bow;
+        // gidilecek yön: agent'in yol+kaçınma yönü; o zayıfsa (varışta frenlerken) sonraki köşe
+        Vector3 steerDir = bow;
+        Vector3 desired = agent.desiredVelocity;
+        desired.y = 0f;
+        if (desired.sqrMagnitude > 0.04f)
+        {
+            steerDir = desired.normalized;
+        }
+        else if (traveling)
+        {
+            Vector3 toCorner = agent.steeringTarget - transform.position;
+            toCorner.y = 0f;
+            if (toCorner.sqrMagnitude > 0.04f)
+            {
+                steerDir = toCorner.normalized;
+            }
+        }
 
-        // burun hedefe donukse tam hiz, degilse taban hiz - yine de ilerler ki donus yay cizsin
-        float alignment = Mathf.Clamp01(Vector3.Dot(bow, steerDir));
-        float speed = steerMag * Mathf.Lerp(minTurnSpeed, 1f, alignment);
+        // burnü bu yöne çevir - dönüş hızı = hız / yarıçap, üst sınır turnRate. Hız düştükçe
+        // dönüş de düşer; currentSpeed ~0 iken dönüş yok (anti-pivot garantisi buradan gelir)
+        float turnRatio = 0f;
+        if (currentSpeed > 0.05f)
+        {
+            float degPerSec = Mathf.Min(currentSpeed / Mathf.Max(minTurnRadius, 0.1f) * Mathf.Rad2Deg, turnRate);
+            float step = degPerSec * Time.deltaTime;
+            float previousYaw = heading.eulerAngles.y;
+            heading = Quaternion.RotateTowards(heading, Quaternion.LookRotation(-steerDir), step);
+            if (step > 0f)
+            {
+                turnRatio = Mathf.Clamp(Mathf.DeltaAngle(previousYaw, heading.eulerAngles.y) / step, -1f, 1f);
+            }
+            bow = heading * Vector3.back;
+            bow.y = 0f;
+            bow.Normalize();
+        }
 
-        // serbest seyirde salt burun yonunde gider; limana yaklastikca hedefe dogru suzulur
-        Vector3 moveDir = Vector3.Slerp(bow, steerDir, approach);
-        Vector3 candidate = transform.position + moveDir * (speed * Time.deltaTime);
-
-        // agent'a yazip geri okuyarak adimi navmesh'e kelepcele - donus yayi genis diye
-        // gemi karaya/ada uzerine tasamaz, kiyi boyunca kayar
+        // burnü yönünde ilerle; adımı agent'a yazıp geri okuyarak navmesh'e kelepçele
+        Vector3 candidate = transform.position + bow * (currentSpeed * Time.deltaTime);
         candidate.y = agent.nextPosition.y;
         agent.nextPosition = candidate;
         Vector3 clamped = agent.nextPosition;
-        transform.position = new Vector3(clamped.x,
-            baseHeight + Mathf.Sin(Time.time * bobSpeed) * bobHeight, clamped.z);
+        transform.position = new Vector3(clamped.x, WaveY(), clamped.z);
 
-        // dumen hiza oranli tutar (BoatController'daki speedFactor deseni) - yerinde donme olmaz;
-        // tabani 0.3 ki dusuk hizda da az cok manevra kalsin (kalkista kilitlenmesin)
-        float speedFactor = agent.speed > 0.01f ? Mathf.Clamp01(speed / agent.speed) : 0f;
-        float maxStep = turnRate * Mathf.Lerp(0.3f, 1f, speedFactor) * Time.deltaTime;
-        float turnRatio = 0f;
-        if (steerMag > 0.01f && maxStep > 0f)
-        {
-            float previousYaw = heading.eulerAngles.y;
-            heading = Quaternion.RotateTowards(heading, Quaternion.LookRotation(-steerDir), maxStep);
-            turnRatio = Mathf.Clamp(Mathf.DeltaAngle(previousYaw, heading.eulerAngles.y) / maxStep, -1f, 1f);
-        }
-
-        // donerken hafifce yana yat; yavas liman manevrasinda daha az yatsin
+        // dönerken hafifçe yat (hıza oranı)
+        float speedFactor = agent.speed > 0.01f ? Mathf.Clamp01(currentSpeed / agent.speed) : 0f;
         float targetBank = -turnRatio * bankAngle * speedFactor;
         currentBank = Mathf.Lerp(currentBank, targetBank, bankSmooth * Time.deltaTime);
         transform.rotation = heading * Quaternion.Euler(0f, 0f, currentBank);
+    }
+
+    // Yanasma/kalkış eğrisini ilerlet. Yanasma da poz Bezier'den, burun tanjanttan gelir (gemi eğriyi burnuyla izler). Kalkışta poz düz denize kayar, burun ada->deniz slerp ile döner
+    // (önce geri çıkıp sonra denize dönen doğal manevra). Bitince ilgili duruma geçer.
+    private void TickManeuver()
+    {
+        // süre-tabanı ilerleme + smoothstep: dönüş hep sabit MIN süreye yayılır, kısa eğride bile
+        // ani "yerinde dönüş" (snap) olmaz; giriş/çıkış yumuşaktır (s'(0)=s'(1)=0)
+        mT += Time.deltaTime / mDuration;
+        bool done = mT >= 1f;
+        float s = Mathf.Clamp01(mT);
+        s = s * s * (3f - 2f * s);
+
+        Vector3 pos;
+        if (mUseBezier)
+        {
+            pos = Bezier(mP0, mP1, mP2, mP3, s);
+            Vector3 tan = BezierTangent(mP0, mP1, mP2, mP3, s);
+            tan.y = 0f;
+            if (tan.sqrMagnitude > 0.0001f)
+            {
+                heading = Quaternion.LookRotation(-tan.normalized);
+            }
+        }
+        else
+        {
+            pos = Vector3.Lerp(mP0, mP3, s);
+            heading = Quaternion.Slerp(mStartHeading, mEndHeading, s);
+        }
+
+        Vector3 np = agent.nextPosition;
+        agent.nextPosition = new Vector3(pos.x, np.y, pos.z);
+        transform.position = new Vector3(pos.x, WaveY(), pos.z);
+        currentBank = Mathf.Lerp(currentBank, 0f, bankSmooth * Time.deltaTime);
+        transform.rotation = heading * Quaternion.Euler(0f, 0f, currentBank);
+
+        if (done)
+        {
+            currentSpeed = 0f;
+            if (state == State.Berthing)
+            {
+                currentIsland = destinationIsland;
+                destinationIsland = null;
+                state = State.Docked;
+                resumeTime = Time.time + dockWaitTime;
+            }
+            else // Undocking: artık denize dönük ve açık sudayız, NavMesh devralabilir
+            {
+                agent.SetDestination(pendingApproach);
+                state = State.Traveling;
+            }
+        }
+    }
+
+    // Yanasma eğrisi: gemi şu anki pozunda ve burun yönünde başlar, endPos'ta endForward yönüne
+    // tam hızalı biter. P2 hedefin biraz denizinde olur ki eğri dock'a dümdüz girsin.
+    private void StartBezierBerth(Vector3 endPos, Vector3 endForward)
+    {
+        Vector3 p0 = transform.position;
+        p0.y = 0f;
+        Vector3 bow = heading * Vector3.back;
+        bow.y = 0f;
+        bow.Normalize();
+        Vector3 end = endPos;
+        end.y = 0f;
+        Vector3 fwd = endForward;
+        fwd.y = 0f;
+        fwd.Normalize();
+
+        float h = Mathf.Max(Vector3.Distance(p0, end) * 0.5f, 0.5f);
+        mP0 = p0;
+        mP1 = p0 + bow * h;
+        mP2 = end - fwd * h;
+        mP3 = end;
+        mUseBezier = true;
+        mT = 0f;
+        mDuration = Mathf.Max(ApproxBezierLength() / berthSpeed, minBerthTime);
+    }
+
+    // Kalkış manevraı: dock'tan denizdeki çıkış noktasına düz kayma + burun deniz yönüne dönüş
+    private void StartUndock(Vector3 seaExit, Vector3 seaward)
+    {
+        Vector3 p0 = transform.position;
+        p0.y = 0f;
+        mP0 = p0;
+        mP3 = new Vector3(seaExit.x, 0f, seaExit.z);
+        mStartHeading = heading;
+        mEndHeading = Quaternion.LookRotation(-seaward.normalized); // burun denize (bow = seaward)
+        mUseBezier = false;
+        mT = 0f;
+        mDuration = Mathf.Max(Vector3.Distance(mP0, mP3) / berthSpeed, minBerthTime);
+    }
+
+    private float ApproxBezierLength()
+    {
+        float len = 0f;
+        Vector3 prev = mP0;
+        for (int i = 1; i <= 12; i++)
+        {
+            Vector3 p = Bezier(mP0, mP1, mP2, mP3, i / 12f);
+            len += Vector3.Distance(prev, p);
+            prev = p;
+        }
+        return Mathf.Max(len, 0.5f);
+    }
+
+    private float WaveY()
+    {
+        return baseHeight + heightOffset + Mathf.Sin(Time.time * bobSpeed) * bobHeight;
+    }
+
+    private static Vector3 Bezier(Vector3 a, Vector3 b, Vector3 c, Vector3 d, float t)
+    {
+        float u = 1f - t;
+        return u * u * u * a + 3f * u * u * t * b + 3f * u * t * t * c + t * t * t * d;
+    }
+
+    private static Vector3 BezierTangent(Vector3 a, Vector3 b, Vector3 c, Vector3 d, float t)
+    {
+        float u = 1f - t;
+        return 3f * u * u * (b - a) + 6f * u * t * (c - b) + 3f * t * t * (d - c);
     }
 }

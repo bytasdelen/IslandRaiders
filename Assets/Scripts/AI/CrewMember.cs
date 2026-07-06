@@ -2,12 +2,6 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-// gemide dolasan mürettebat, dort durumlu:
-// Patrol      - kendi rotasini kesintisiz yürür
-// Investigate - duyulan gurultuye / hedefin son gorulen yerine graf uzerinden kosar
-// Return      - olay bitince patrol rotasina graf uzerinden geri doner (duz cizgi duvardan gecebilirdi)
-// Combat      - oyuncuyu gordugu surece durur, doner, ates eder
-// Tum hesap sunucuda yapilir (IsServer), NetworkTransform senkronu hallediyor
 public class CrewMember : NetworkBehaviour
 {
     private enum State { Patrol, Investigate, Return, Combat }
@@ -17,8 +11,7 @@ public class CrewMember : NetworkBehaviour
     [SerializeField] private float patrolSpeed = 1.5f;
     [SerializeField] private float chaseSpeed = 3f;
     [SerializeField] private float arriveThreshold = 0.3f;
-    // node'lar zemin seviyesinde duruyor ama pivot merkezdeyse zemine gomulmemek icin
-    // hedef pozisyona eklenen yukseklik (capsule yariyuksekligiyle eslesmeli)
+
     [SerializeField] private float groundOffset = 1f;
 
     [Header("Detect")]
@@ -38,8 +31,6 @@ public class CrewMember : NetworkBehaviour
     private float nextRepathTime;
     private float lastSeenTime = float.NegativeInfinity;
 
-    // Alert() cagrilana kadar (sandik hirsizligi / silah sesi) mürettebat oyuncuyu
-    // gorse bile saldirmaz - sadece kendi rotasinda dolasir
     private bool isHostile;
 
     private List<WaypointNode> allNodes;
@@ -58,8 +49,6 @@ public class CrewMember : NetworkBehaviour
         }
     }
 
-    // ShipRandomizer tarafindan dinamik spawn sirasinda cagrilir (Inspector'da elle
-    // atanmis patrolRoute yerine gecer); rota + erisilebilir tum graf burada kurulur
     public void SetPatrolRoute(WaypointNode[] route)
     {
         patrolRoute = route;
@@ -67,7 +56,6 @@ public class CrewMember : NetworkBehaviour
         patrolIndex = 0;
         patrolDirection = 1;
 
-        // spawn aninda ilk noktaya (yukseklik duzeltmesiyle) aninda oturt, ilk MoveTowards'i beklemeye gerek yok
         if (route.Length > 0)
         {
             transform.position = NodePosition(route[0]);
@@ -93,11 +81,8 @@ public class CrewMember : NetworkBehaviour
             state = State.Combat;
             lastSeenTime = Time.time;
         }
-        // tek bir frame'lik gorus kaybinda (kapi kenari, ince engel vs.) hemen pes etmesin diye
-        // kucuk bir tolerans suresi var - o sure dolmadan Combat'tan cikilmaz, TickCombat calismaya devam eder
         else if (state == State.Combat && Time.time - lastSeenTime > loseTargetGraceTime)
         {
-            // hedef gercekten bir sureden beri gorulmuyor, son bilinen yerine bakmaya git
             if (target != null)
             {
                 GoInvestigate(target.transform.position);
@@ -126,11 +111,6 @@ public class CrewMember : NetworkBehaviour
         }
     }
 
-    // CrewAlertSystem tarafindan cagrilir (silah sesi, sandik hirsizligi gibi olaylarda).
-    // bu noktadan sonra mürettebat kalici olarak dusman moduna gecer (bir daha pasiflesmez).
-    // otomatik silahta her mermi icin yol yeniden hesaplanmasin diye cooldown burada.
-    // true donerse bu cagriyla YENI dusman oldu (onceden pasifti) - CrewAlertSystem
-    // bunu "dikkatli ol" bildirimini spamlamamak icin kullanir
     public bool Alert(Vector3 sourcePosition)
     {
         bool wasHostile = isHostile;
@@ -145,12 +125,8 @@ public class CrewMember : NetworkBehaviour
         return !wasHostile;
     }
 
-    // her cagrildiginda state'i mutlaka Combat'tan cikarir (Investigate ya da Patrol);
-    // aksi halde hedef kaybinda Combat'ta null target ile kalinabilirdi
     private void GoInvestigate(Vector3 worldPosition)
     {
-        // iki uc da "duz cizgide engel olmayan" en yakin node'dan secilir; aksi halde
-        // duvarin arkasindaki node secilir ve mürettebat duvara dogru yurumeye kalkar
         WaypointNode from = FindNearestClearNode(transform.position);
         WaypointNode to = FindNearestClearNode(worldPosition);
         graphPath = ShipPathfinder.FindPath(from, to);
@@ -158,7 +134,6 @@ public class CrewMember : NetworkBehaviour
         state = graphPath != null ? State.Investigate : State.Patrol;
     }
 
-    // olay yeri incelendi, patrol rotasina graf uzerinden geri don
     private void StartReturn()
     {
         WaypointNode from = FindNearestClearNode(transform.position);
@@ -181,7 +156,6 @@ public class CrewMember : NetworkBehaviour
         }
     }
 
-    // rotanin ucuna/basina gelince yon degistirip geri sarar
     private void AdvancePatrolIndex()
     {
         if (patrolIndex + patrolDirection < 0 || patrolIndex + patrolDirection >= patrolRoute.Length)
@@ -206,7 +180,6 @@ public class CrewMember : NetworkBehaviour
             return;
         }
 
-        // patrol rotasindaki hangi node'a vardiysak devriyeye oradan devam et
         if (graphPath != null && graphPath.Count > 0)
         {
             int index = System.Array.IndexOf(patrolRoute, graphPath[graphPath.Count - 1]);
@@ -218,7 +191,6 @@ public class CrewMember : NetworkBehaviour
         state = State.Patrol;
     }
 
-    // true dondugunde yol tamamlanmistir
     private bool WalkGraphPath(float speed)
     {
         if (graphPath == null || graphPathIndex >= graphPath.Count)
@@ -233,9 +205,6 @@ public class CrewMember : NetworkBehaviour
         return graphPathIndex >= graphPath.Count;
     }
 
-    // hedefe gercek 3D pozisyonda yurur (alt/ust kat node'lari icin Y farki da uygulanir).
-    // bakis yonu (rotasyon) sadece yatay duzlemde hesaplanir ki merdivende govde
-    // one/arkaya egilmesin, sadece dogru yone donsun
     private bool MoveTowardsPoint(Vector3 targetPos, float speed)
     {
         Vector3 toTarget = targetPos - transform.position;
@@ -287,8 +256,6 @@ public class CrewMember : NetworkBehaviour
         return null;
     }
 
-    // gozden hedefe isin atilir, kendi collider'lari atlanir; ilk carpilan sey hedefin
-    // kendisiyse gorus aciktir. LayerMask ayarina bagimli degildir (yanlis mask = kor AI)
     private bool CanSee(PlayerHealth player)
     {
         Vector3 origin = transform.position + Vector3.up;
@@ -315,7 +282,6 @@ public class CrewMember : NetworkBehaviour
         return true;
     }
 
-    // duz cizgide engel olmadan gorulebilen en yakin node; hicbiri acikta degilse duz en yakin
     private WaypointNode FindNearestClearNode(Vector3 position)
     {
         WaypointNode best = null;
@@ -351,7 +317,7 @@ public class CrewMember : NetworkBehaviour
         Vector3 origin = weapon.Muzzle.position;
         Vector3 direction = (aimPoint - origin).normalized;
 
-        // kendi govdesine/silahina carpmamak icin tum isabetler taranir, ilk yabanci hedef alinir
+        // kendi govdesine/silahina çarpmamak icin tüm isabetler taranir, ilk yabanci hedef alınır
         RaycastHit[] hits = Physics.RaycastAll(origin, direction, weapon.Range,
             Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
         System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));

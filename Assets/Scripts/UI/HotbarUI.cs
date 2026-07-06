@@ -2,16 +2,14 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-
-// owner'in ekran alti hotbar arayuzu; slot ikonlari ve secili slot vurgusu
+ 
 public class HotbarUI : MonoBehaviour
 {
     [SerializeField] private PlayerInventory inventory;
     [SerializeField] private HotbarSlotUI[] slotViews;
 
     private void Start()
-    {
-        // hotbar sadece bu makinedeki oyuncuya (owner) gosterilir
+    { 
         if (inventory.IsOwner)
         {
             for (int i = 0; i < slotViews.Length; i++)
@@ -68,8 +66,7 @@ public class HotbarUI : MonoBehaviour
             }
         }
     }
-
-    // slotlar arasinda loop yaparak (bas/son sarmali) ilerler
+     
     private void SelectRelative(int delta)
     {
         int count = PlayerInventory.SlotCount;

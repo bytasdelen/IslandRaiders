@@ -1,10 +1,10 @@
 using Unity.Netcode;
 using UnityEngine;
 
-// dumen: oyuncu E ile gecer/birakir, gemi kontrolunu alir
+// dümen: oyuncu E ile geçer/bırakır, gemi kontrolunu alır
 public class SteeringWheel : NetworkBehaviour
 {
-    [SerializeField] private BoatController boat;
+    [SerializeField] private ShipController boat;
     [SerializeField] private Transform seatPoint;
     [SerializeField] private Transform wheelVisual;
     [SerializeField] private float maxWheelSpin = 180f;
@@ -17,7 +17,6 @@ public class SteeringWheel : NetworkBehaviour
 
     private void Update()
     {
-        // dumen simidi, senkronize dumen acisina gore her makinede doner
         if (wheelVisual != null)
         {
             wheelVisual.localRotation = Quaternion.Euler(0f, 0f, boat.Rudder * -maxWheelSpin);
@@ -29,15 +28,14 @@ public class SteeringWheel : NetworkBehaviour
         ToggleServerRpc(player);
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [ServerRpc]
     private void ToggleServerRpc(NetworkObjectReference playerRef)
     {
         if (!playerRef.TryGet(out NetworkObject player))
         {
             return;
-        }
+        } 
 
-        // parent yonetimi PlayerRider'da; burada sadece gemi kontrolu (ownership) devredilir
         if (driverClientId.Value == player.OwnerClientId)
         {
             driverClientId.Value = NoDriver;

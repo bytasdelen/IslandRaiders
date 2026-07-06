@@ -2,12 +2,6 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-// gemi spawn olurken rastgele populasyon belirler: sandik bazen hic yok bazen
-// noktalardan birinde; mürettebat sayisi 0 ile maxCrewCount arasinda rastgele,
-// her biri graf uzerinde rastgele yürüyerek kendi devriye rotasini olusturur.
-// Sadece sunucuda calisir, sonuc spawn/despawn ile herkese yayilir - mürettebati
-// statik/nested obje olarak yerlestirmek yerine dinamik spawn etmek NGO'nun
-// sonradan baglanan client'lara senkron gonderme sorununu da kokten cozer
 public class ShipRandomizer : NetworkBehaviour
 {
     [SerializeField] private Transform[] chestSpawnPoints;
@@ -46,7 +40,6 @@ public class ShipRandomizer : NetworkBehaviour
 
         NetworkObject chestNetObj = chestObj.GetComponent<NetworkObject>();
         chestNetObj.Spawn();
-        // gemiye parentlanmazsa gemi yol alinca sandik oldugu yerde kalir
         chestNetObj.TrySetParent(NetworkObject, true);
     }
 

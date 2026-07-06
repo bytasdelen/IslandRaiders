@@ -18,8 +18,7 @@ public class PlayerWeapon : NetworkBehaviour
     private float nextEmptyAmmoWarningTime;
 
     public override void OnNetworkSpawn()
-    {
-        // sadece owner input'a abone olur; behaviour acik kalir ki sunucu tarafinda RPC islenebilsin
+    { 
         if (!IsOwner)
         {
             return;
@@ -52,7 +51,7 @@ public class PlayerWeapon : NetworkBehaviour
 
         if (inventory.GetSelectedAmmo() <= 0)
         {
-            // otomatik silahta basili tutulunca her frame tetiklenmesin diye kucuk bir cooldown
+            // otomatik silahta basili tutulunca her frame tetiklenmesin diye cooldown
             if (Time.time >= nextEmptyAmmoWarningTime)
             {
                 notificationUI.Show("Insufficient ammo");
@@ -62,14 +61,13 @@ public class PlayerWeapon : NetworkBehaviour
         }
         nextFireTime = Time.time + 1f / weapon.FireRate;
 
-        // isabet kameradan (crosshair), mermi gorseli silahin namlusundan cikar
+        // isabet kameradan (crosshair), mermi gorseli silahin namlusundan çıkar
         FireServerRpc(aimSource.position, aimSource.forward, weapon.Muzzle.position);
     }
 
     [ServerRpc]
     private void FireServerRpc(Vector3 origin, Vector3 direction, Vector3 muzzlePosition)
     {
-        // silah statlari sunucudaki kendi kopyasindan okunur (guvenli)
         Weapon weapon = heldItemDisplay.CurrentWeapon;
         if (weapon == null || inventory.GetSelectedAmmo() <= 0)
         {
@@ -91,7 +89,7 @@ public class PlayerWeapon : NetworkBehaviour
         // sadece gemideyken ates edersek o geminin mürettebatini uyarir, baska gemiye sizmaz
         if (rider.CurrentShip != null && CrewAlertSystem.Notify(origin, rider.CurrentShip))
         {
-            notifications.NotifyOwner("Mürettebat saldırıya geçti, dikkatli ol!");
+            notifications.NotifyOwner("The crew has launched an attack!");
         }
 
         Vector3 endPoint = hitSomething ? hit.point : origin + direction * weapon.Range;

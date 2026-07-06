@@ -249,12 +249,44 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 54892092291263619, guid: 29cb244237fc052449d14928de23d025, type: 3}
+      propertyPath: turnRate
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 54892092291263619, guid: 29cb244237fc052449d14928de23d025, type: 3}
+      propertyPath: bankAngle
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 54892092291263619, guid: 29cb244237fc052449d14928de23d025, type: 3}
+      propertyPath: bobHeight
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 54892092291263619, guid: 29cb244237fc052449d14928de23d025, type: 3}
       propertyPath: startIsland
       value: 
       objectReference: {fileID: 1596072312}
+    - target: {fileID: 54892092291263619, guid: 29cb244237fc052449d14928de23d025, type: 3}
+      propertyPath: dockStandoff
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 54892092291263619, guid: 29cb244237fc052449d14928de23d025, type: 3}
+      propertyPath: heightOffset
+      value: -3.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 54892092291263619, guid: 29cb244237fc052449d14928de23d025, type: 3}
+      propertyPath: minTurnRadius
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 54892092291263619, guid: 29cb244237fc052449d14928de23d025, type: 3}
+      propertyPath: slowdownDistance
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 89178931046523106, guid: 29cb244237fc052449d14928de23d025, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 2207409271
+      objectReference: {fileID: 0}
+    - target: {fileID: 4992876746167096276, guid: 29cb244237fc052449d14928de23d025, type: 3}
+      propertyPath: m_Radius
+      value: 17
       objectReference: {fileID: 0}
     - target: {fileID: 5535418517726532174, guid: 29cb244237fc052449d14928de23d025, type: 3}
       propertyPath: m_Name
@@ -262,11 +294,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8128567053778015895, guid: 29cb244237fc052449d14928de23d025, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10.6
+      value: -17.3
       objectReference: {fileID: 0}
     - target: {fileID: 8128567053778015895, guid: 29cb244237fc052449d14928de23d025, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.71
+      value: -4.27
       objectReference: {fileID: 0}
     - target: {fileID: 8128567053778015895, guid: 29cb244237fc052449d14928de23d025, type: 3}
       propertyPath: m_LocalPosition.z
@@ -451,7 +483,7 @@ MonoBehaviour:
   m_Center: {x: 0, y: 2, z: 0}
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 247
   m_UseGeometry: 0
   m_DefaultArea: 0
   m_GenerateLinks: 0
@@ -460,7 +492,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 1
+  m_VoxelSize: 2.6666667
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 3295c424da4731a42bb6af624109de2c, type: 2}
   m_BuildHeightMesh: 0
@@ -777,6 +809,7 @@ GameObject:
   - component: {fileID: 941471953}
   - component: {fileID: 941471952}
   - component: {fileID: 941471951}
+  - component: {fileID: 941471955}
   m_Layer: 0
   m_Name: SpawnIsland (1)
   m_TagString: Untagged
@@ -815,12 +848,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b196e24c04924c45ae88641f9c7a106, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Island
-  approachPoint: {fileID: 1944674429}
   dockPoints:
   - {fileID: 1944674429}
   - {fileID: 1895269314}
   - {fileID: 143487242}
   - {fileID: 1563611574}
+  approachMargin: 20
 --- !u!65 &941471952
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -899,6 +932,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 941471949}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &941471955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941471949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifierVolume
+  m_SerializedVersion: 0
+  m_Size: {x: 1, y: 5, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1030005119
 GameObject:
   m_ObjectHideFlags: 0
@@ -979,6 +1029,7 @@ GameObject:
   - component: {fileID: 1169567038}
   - component: {fileID: 1169567037}
   - component: {fileID: 1169567036}
+  - component: {fileID: 1169567040}
   m_Layer: 0
   m_Name: SpawnIsland (3)
   m_TagString: Untagged
@@ -1017,12 +1068,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b196e24c04924c45ae88641f9c7a106, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Island
-  approachPoint: {fileID: 226978111}
   dockPoints:
   - {fileID: 226978111}
   - {fileID: 1939080779}
   - {fileID: 1498781566}
   - {fileID: 656272537}
+  approachMargin: 20
 --- !u!65 &1169567037
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1101,6 +1152,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1169567034}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1169567040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1169567034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifierVolume
+  m_SerializedVersion: 0
+  m_Size: {x: 1, y: 5, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1218968069
 GameObject:
   m_ObjectHideFlags: 0
@@ -1632,6 +1700,7 @@ GameObject:
   - component: {fileID: 1596072310}
   - component: {fileID: 1596072309}
   - component: {fileID: 1596072312}
+  - component: {fileID: 1596072313}
   m_Layer: 0
   m_Name: SpawnIsland
   m_TagString: Untagged
@@ -1648,7 +1717,7 @@ Transform:
   m_GameObject: {fileID: 1596072307}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.62, y: 0, z: 0}
+  m_LocalPosition: {x: 9.62, y: -0.2, z: 0}
   m_LocalScale: {x: 30, y: 1, z: 30}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1748,12 +1817,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b196e24c04924c45ae88641f9c7a106, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Island
-  approachPoint: {fileID: 2055375905}
   dockPoints:
   - {fileID: 2055375905}
   - {fileID: 789353181}
   - {fileID: 392100556}
   - {fileID: 1543214079}
+  approachMargin: 20
+--- !u!114 &1596072313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1596072307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifierVolume
+  m_SerializedVersion: 0
+  m_Size: {x: 1, y: 5, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &1603868712
 GameObject:
   m_ObjectHideFlags: 0
@@ -1842,7 +1928,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8128567053778015895, guid: 8cf48946090cee84bbcfe922002f59c7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 29.7
+      value: 32.8
       objectReference: {fileID: 0}
     - target: {fileID: 8128567053778015895, guid: 8cf48946090cee84bbcfe922002f59c7, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2034,7 +2120,7 @@ Transform:
   m_GameObject: {fileID: 2055375904}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.757, y: 0, z: 0}
+  m_LocalPosition: {x: -0.818, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2084,6 +2170,7 @@ GameObject:
   - component: {fileID: 2095052871}
   - component: {fileID: 2095052870}
   - component: {fileID: 2095052869}
+  - component: {fileID: 2095052873}
   m_Layer: 0
   m_Name: SpawnIsland (2)
   m_TagString: Untagged
@@ -2122,12 +2209,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b196e24c04924c45ae88641f9c7a106, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Island
-  approachPoint: {fileID: 554377529}
   dockPoints:
   - {fileID: 554377529}
   - {fileID: 1436551500}
   - {fileID: 1675117208}
   - {fileID: 808297615}
+  approachMargin: 20
 --- !u!65 &2095052870
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2206,6 +2293,23 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2095052867}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2095052873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095052867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35e95dc5ff2b64380880dd7ac5922847, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifierVolume
+  m_SerializedVersion: 0
+  m_Size: {x: 1, y: 5, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+  m_Area: 1
+  m_AffectedAgents: ffffffff
 --- !u!1 &2138150680
 GameObject:
   m_ObjectHideFlags: 0
@@ -2332,6 +2436,18 @@ PrefabInstance:
     - target: {fileID: 2910514411597174143, guid: c5a23d25f4dd43846b2f04b269f7137e, type: 3}
       propertyPath: m_Name
       value: Chest
+      objectReference: {fileID: 0}
+    - target: {fileID: 5074219132467293476, guid: c5a23d25f4dd43846b2f04b269f7137e, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3960345506
+      objectReference: {fileID: 0}
+    - target: {fileID: 5074219132467293476, guid: c5a23d25f4dd43846b2f04b269f7137e, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5074219132467293476, guid: c5a23d25f4dd43846b2f04b269f7137e, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 2570736876
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

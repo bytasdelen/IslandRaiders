@@ -5,7 +5,6 @@ using UnityEngine;
 public class WorldItem : NetworkBehaviour
 {
     [SerializeField] private int itemId;
-    // -1 = silah degil ya da mermi onemsiz; TryAddItem bu durumda max mermiyle baslatir
     [SerializeField] private int ammo = -1;
 
     private readonly NetworkVariable<int> networkItemId = new NetworkVariable<int>();

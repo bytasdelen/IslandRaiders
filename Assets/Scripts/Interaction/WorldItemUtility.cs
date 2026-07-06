@@ -3,7 +3,7 @@ using UnityEngine;
 // yere birakilan/dusen esyalari konumlandirma yardimcilari (oyuncu drop'u, dusman silahi vb.)
 public static class WorldItemUtility
 {
-    // pivotu merkezde olan objeler zemine gomulmesin diye collider alt sinirina gore yukari kaydirir
+    // pivotu merkezde olan objeler zemine gomulmesin diye collider alt sinirina göre yukari kaydirir
     public static void SnapToGround(GameObject obj, float groundY)
     {
         Collider[] colliders = obj.GetComponentsInChildren<Collider>();

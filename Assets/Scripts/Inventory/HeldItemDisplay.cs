@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-// secili slottaki item'in modelini elde gosterir; her client'ta calisir
+// secili slottaki item'in modelini elde gösterir; her client'ta çalışır
 public class HeldItemDisplay : NetworkBehaviour
 {
     [SerializeField] private PlayerInventory inventory;

@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-
-// tek bir hotbar slotunun gorseli: ikon ve secili cercevesi
+ 
 public class HotbarSlotUI : MonoBehaviour
 {
     [SerializeField] private Button button;

@@ -2,9 +2,8 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// gemiyi hareket ettirir; sadece dumeni tutan owner surer.
-// dalga dahil tum hareket root'a uygulanir, NetworkTransform herkese senkronlar.
-public class BoatController : NetworkBehaviour, IShipDeck
+// Bizim kullandığımız gemi controlleri, gemi hareket ettirmek ve dümene basan oyuncunun inputunu almak için kullanılır.
+public class ShipController : NetworkBehaviour, IShipDeck
 {
     [SerializeField] private InputActionAsset inputActions;
     [SerializeField] private SteeringWheel steeringWheel;
@@ -48,7 +47,7 @@ public class BoatController : NetworkBehaviour, IShipDeck
             steer = input.x;
         }
 
-        // hiz: W hizlandirir, S once frenler sonra yavasca geri, birakinca su surtunmesiyle durur
+        // hız: W hızlandırır, S önce frenler sonra yavaşça geri, bırakınca su sürtünmesiyle durur
         if (throttle > 0.1f)
         {
             currentSpeed += acceleration * Time.deltaTime;
@@ -63,17 +62,17 @@ public class BoatController : NetworkBehaviour, IShipDeck
         }
         currentSpeed = Mathf.Clamp(currentSpeed, -maxReverseSpeed, maxSpeed);
 
-        // dumen yavasca donsun
+        // dümen yavaşça dönsün
         currentSteer = Mathf.MoveTowards(currentSteer, steer, steerSmooth * Time.deltaTime);
         networkSteer.Value = currentSteer;
 
-        // ileri hareket duz duzlemde (dalga egimi yonu etkilemesin)
+        // ileri hareket düz düzlemde (dalga eğimi yönü etkilemesin)
         Vector3 forward = -transform.forward;
         forward.y = 0f;
         forward.Normalize();
         transform.position += forward * (currentSpeed * Time.deltaTime);
 
-        // donus yalnizca hareket varken etkili (hiza oranli)
+        // dönüş yalnızca hareket varken etkili (hıza oranılı)
         float speedFactor = currentSpeed / maxSpeed;
         transform.Rotate(Vector3.up, currentSteer * turnRate * speedFactor * Time.deltaTime, Space.World);
     }

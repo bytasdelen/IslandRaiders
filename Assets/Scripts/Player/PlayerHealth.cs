@@ -59,7 +59,7 @@ public class PlayerHealth : NetworkBehaviour, IDamageable
         }
     }
 
-    // ileride kask/zirh takildiginda cagrilir
+    // kask/zirh takildiginda çağrılır
     public void SetArmor(HitRegion region, float reduction)
     {
         if (!IsServer)
@@ -80,7 +80,7 @@ public class PlayerHealth : NetworkBehaviour, IDamageable
     private void Respawn()
     {
         CurrentHealth.Value = maxHealth;
-        notifications.NotifyOwner("Öldünüz!");
+        notifications.NotifyOwner("You died!");
 
         ClientRpcParams targetOwnerOnly = new ClientRpcParams
         {
@@ -92,7 +92,6 @@ public class PlayerHealth : NetworkBehaviour, IDamageable
     [ClientRpc]
     private void TeleportToSpawnClientRpc(Vector3 position, ClientRpcParams clientRpcParams = default)
     {
-        // CharacterController acikken transform.position'a direkt atama calismaz, once kapatmak gerekir
         characterController.enabled = false;
         transform.position = position;
         characterController.enabled = true;

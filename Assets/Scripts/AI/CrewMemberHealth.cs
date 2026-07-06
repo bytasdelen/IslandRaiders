@@ -1,7 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
 
-// mürettebatin canini tutar; PlayerHealth'in basitlestirilmis hali, respawn yok
 public class CrewMemberHealth : NetworkBehaviour, IDamageable
 {
     [SerializeField] private int maxHealth = 80;
@@ -62,7 +61,6 @@ public class CrewMemberHealth : NetworkBehaviour, IDamageable
         }
     }
 
-    // silahi oyuncunun alabilecegi normal bir WorldItem olarak yere birakir
     private void DropWeapon()
     {
         if (weaponItemId < 0 || itemDatabase == null)
@@ -82,7 +80,7 @@ public class CrewMemberHealth : NetworkBehaviour, IDamageable
             dropPos = hit.point;
         }
 
-        // mürettebat mermi takip etmiyor, silahi hep dolu birakir
+        // mürettebat mermi takip etmiyor, silahi hep dolu bırakır
         Weapon heldWeapon = def.HeldPrefab != null ? def.HeldPrefab.GetComponent<Weapon>() : null;
         int ammo = heldWeapon != null ? heldWeapon.MaxAmmo : -1;
 
@@ -93,14 +91,13 @@ public class CrewMemberHealth : NetworkBehaviour, IDamageable
         NetworkObject netObj = obj.GetComponent<NetworkObject>();
         netObj.Spawn();
 
-        // gemideysek gemiye parentlanmazsa gemi yol alinca silah oldugu yerde kalir
+        // gemideysek gemiye parentlanmazsa gemi yol alinca silah olduğu yerde kalir
         if (GetComponentInParent<IShipDeck>() is IShipDeck ship)
         {
             netObj.TrySetParent(ship.NetworkObject, true);
         }
     }
-
-    // olunce vurulabilirligi kapat, govdeyi devir (basit gorsel geri bildirim, animasyon yok)
+     
     private void OnDeadChanged(bool previous, bool current)
     {
         if (!current)

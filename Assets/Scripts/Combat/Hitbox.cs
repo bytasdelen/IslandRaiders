@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// head/govde gibi vurulabilir bolgeleri temsil eder, hasari parent'taki cana yonlendirir
+// head/gövde gibi vurulabilir bolgeleri temsil eder, hasari parent'taki cana yonlendirir
 public class Hitbox : MonoBehaviour
 {
     [SerializeField] private HitRegion region;

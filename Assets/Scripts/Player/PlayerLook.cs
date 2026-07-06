@@ -12,7 +12,7 @@ public class PlayerLook : NetworkBehaviour
     [SerializeField] private float minPitch = -60f;
     [SerializeField] private float maxPitch = 80f;
 
-    // pitch acisi sunucuya ve digerlerine yayilir, ateş sirasinda sunucunun
+    // pitch açısı sunucuya ve digerlerine yayilir, ateş sirasinda sunucunun
     // FirePoint yonunu dogru hesaplayabilmesi icin gereklidir
     private readonly NetworkVariable<float> networkPitch =
         new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
@@ -51,7 +51,7 @@ public class PlayerLook : NetworkBehaviour
 
     private void ApplyPitch(float pitchValue)
     {
-        // kamera goz hizasindaki pivotta, kol/silah omuz hizasindaki pivotta ama ayni aciyla doner
+        // kamera goz hizasindaki pivotta, kol/silah omuz hizasindaki pivotta ama ayni aciyla döner
         Quaternion rotation = Quaternion.Euler(pitchValue, 0f, 0f);
         pivot.localRotation = rotation;
         armPivot.localRotation = rotation;
@@ -68,7 +68,7 @@ public class PlayerLook : NetworkBehaviour
 
         Vector2 lookDelta = lookAction.ReadValue<Vector2>() * mouseSensitivity;
 
-        // dumendeyken de govde donuyor (BoatCamera govdenin child'i oldugu icin onunla doner) -
+        // dumendeyken de gövde donuyor (BoatCamera gövdenin child'i olduğu icin onunla döner) -
         // bilerek boyle, ayri bir kamera-only rotasyon denemesi daha kotu hissettirmisti
         transform.Rotate(Vector3.up * lookDelta.x);
 

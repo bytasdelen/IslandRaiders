@@ -7,10 +7,8 @@ public class PlayerController : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] private InputActionAsset inputActions;
-    // yuzerken hareket yonu bakis yonunden alinir, bu pivot kamera pitch'ini tutar
+    // yüzerken hareket yönü bakış yönünden alınır, bu pivot kamera pitch'ini tutar
     [SerializeField] private Transform lookPivot;
-    // gemideyken (alt kat dahil) yuzme kontrolu tamamen atlanir - gemi govdesi denizin
-    // gercek yuzeyinden daha dusuk Y'de olabilir, sabit waterLevel kiyaslamasi orada yaniliyordu
     [SerializeField] private PlayerRider rider;
 
     [Header("Ground Movement")]
@@ -23,14 +21,13 @@ public class PlayerController : NetworkBehaviour
 
     [Header("Swimming")]
     [SerializeField] private float waterLevel = -1.2f;
-    // yuzme hizi kara hizinin bu kati kadar; 0.5 alti tutulmasi "en az 2 kat yavas" demektir
     [SerializeField] private float swimSpeedMultiplier = 0.4f;
     [SerializeField] private float swimAcceleration = 0.3f;
-    // sudan yukari dogru itme kuvveti, karakteri yuzeye tasir
+    // sudan yukari dogru itme kuvveti, karakteri yüzeye taşır
     [SerializeField] private float buoyancy = 4f;
-    // ayaktan olculen, karakterin sakin haldeyken oturdugu su derinligi (dusuk deger = daha yuksekte yuzer)
+    // ayaktan ölçülen, karakterin sakin haldeyken oturduğu su derinligi (düşük değer = daha yüksekte yüzer)
     [SerializeField] private float floatDepth = 1.1f;
-    // yuzmeye baslama/bitme esikleri arasindaki fark mod titremesini onler
+    // yüzmeye başlama/bitme eşikleri arasındaki fark 
     [SerializeField] private float swimStartDepth = 1.3f;
     [SerializeField] private float swimStopDepth = 0.8f;
 
@@ -42,9 +39,7 @@ public class PlayerController : NetworkBehaviour
     private Vector3 currentVelocity;
     private Vector3 velocitySmoothDamp;
     private float verticalVelocity;
-    private bool isSwimming;
-
-    // su alti efekti gibi gorsel bilesenler bu durumu okur
+    private bool isSwimming; 
     public bool IsSwimming => isSwimming;
     public float WaterLevel => waterLevel;
 
@@ -82,10 +77,10 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    // ayaklarin ne kadar suya girdigine gore yuzme moduna gec/cik, esikler arasi bosluk histerezis saglar
+    // ayaklarin ne kadar suya girdiğine göre yüzme moduna geç/çık, esikler arasi bosluk histerezis sağlar
     private void UpdateSwimState()
     {
-        // gemi uzerindeysen (dumende, ust guverte veya alt kat) asla yuzme moduna girme
+        // gemi uzerindeysen asla yüzme moduna girme
         if (rider != null && rider.CurrentShip != null)
         {
             isSwimming = false;
@@ -98,7 +93,7 @@ public class PlayerController : NetworkBehaviour
         if (!isSwimming && submersion > swimStartDepth)
         {
             isSwimming = true;
-            // suya girerken birikmis dusme hizini sifirla ki dibe cakilmasin
+            // suya girerken birikmis dusme hizini sifirl�yoruz ki dibe cakilmasin
             verticalVelocity = 0f;
         }
         else if (isSwimming && submersion < swimStopDepth)
@@ -137,11 +132,11 @@ public class PlayerController : NetworkBehaviour
     private void SwimMovement()
     {
         Vector2 input = moveAction.ReadValue<Vector2>();
-        // ileri/geri bakis yonunde ilerler (asagi bakinca dalis, yukari bakinca yuzeye), saga/sola govde ekseninde
+        // ileri/geri bakış yonunde ilerler (asagi bakinca dalis, yukari bakinca yüzeye), saga/sola gövde ekseninde
         Vector3 look = lookPivot != null ? lookPivot.forward : transform.forward;
         Vector3 swimInput = look * input.y + transform.right * input.x;
 
-        // zipla tusu yukari, yuzeye cikma icin
+        // zipla tusu yukari, yüzeye cikmak icin
         float ascend = jumpAction.IsPressed() ? 1f : 0f;
 
         Vector3 desired = Vector3.ClampMagnitude(swimInput + Vector3.up * ascend, 1f);

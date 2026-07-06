@@ -3,8 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-// oyuncunun can barini, para miktarini ve (elinde silah varsa) mermi sayisini gosterir;
-// sadece owner'da aktif. can barı ani atlamiyor, hedef degere dogru yumusakca (smooth) kayiyor
+// oyuncunun can barini, para miktarini ve (elinde silah varsa) mermi sayisini gösterir;
 public class PlayerStatusUI : MonoBehaviour
 {
     [SerializeField] private PlayerHealth health;
@@ -27,10 +26,7 @@ public class PlayerStatusUI : MonoBehaviour
 
         health.CurrentHealth.OnValueChanged += OnHealthChanged;
         inventory.Coins.OnValueChanged += OnCoinsChanged;
-        inventory.Ammo.OnListChanged += OnAmmoListChanged;
-        // slots ve ammo ayri network mesajlariyla senkronlanir, remote client'ta hangisinin
-        // once vardigi garanti degil - sadece Ammo'yu dinlemek slot bosalinca UI'nin eski
-        // (silah) durumda takili kalmasina yol acabiliyordu, Slots'u da dinleyip ayni refresh'i tetikliyoruz
+        inventory.Ammo.OnListChanged += OnAmmoListChanged; 
         inventory.Slots.OnListChanged += OnAmmoListChanged;
         inventory.SelectedSlot.OnValueChanged += OnSelectedSlotChanged;
 
@@ -90,8 +86,7 @@ public class PlayerStatusUI : MonoBehaviour
     {
         coinsText.text = value.ToString();
     }
-
-    // sadece elde silah varken (HeldPrefab'inde Weapon component'i varsa) gosterilir
+     
     private void RefreshAmmo()
     {
         ItemDefinition def = inventory.Database.Get(inventory.GetSelectedItemId());

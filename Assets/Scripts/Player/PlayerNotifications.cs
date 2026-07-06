@@ -1,8 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-// sunucudan sadece kendi sahibine (owner) gecici bir bildirim gondermek icin ortak yol;
-// PlayerWeapon/PlayerInteraction/PlayerHealth gibi sunucu tarafinda calisan yerler kullanir
+// sunucudan sadece kendi sahibine (owner) bir bildirim gondermek icin kullanýlýr;
 public class PlayerNotifications : NetworkBehaviour
 {
     [SerializeField] private NotificationUI notificationUI;

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8952362711954910977}
   - component: {fileID: 7096642327551301759}
   - component: {fileID: 3835792929584916031}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Capsule (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 7795454988055548383}
   - component: {fileID: 7798618825233575376}
   - component: {fileID: 2642392317688103795}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -235,7 +235,7 @@ GameObject:
   - component: {fileID: 7282670407529517314}
   - component: {fileID: 6718416944861498233}
   - component: {fileID: 8638948879724702211}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WaterStencilMask (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -324,7 +324,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3123009981191282507}
   - component: {fileID: 6130029093580969355}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (10)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -375,7 +375,7 @@ GameObject:
   - component: {fileID: 3803159993608519657}
   - component: {fileID: 3755572606584643454}
   - component: {fileID: 5740892396941815132}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -485,7 +485,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5372569534868551279}
   - component: {fileID: 6690510751272402814}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (3)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -534,7 +534,7 @@ GameObject:
   - component: {fileID: 1924141325524656880}
   - component: {fileID: 3326331735594809576}
   - component: {fileID: 353600517507040195}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WaterStencilMask (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -623,7 +623,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6353880982825471555}
   - component: {fileID: 1157658470182769837}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (9)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -670,7 +670,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 155985341822819690}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ChestSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
@@ -702,7 +702,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2409304509094886501}
   - component: {fileID: 7006373837360920806}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (15)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -751,7 +751,7 @@ GameObject:
   - component: {fileID: 1127033988353779141}
   - component: {fileID: 1327465796194476954}
   - component: {fileID: 7932848137834185491}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -864,7 +864,7 @@ GameObject:
   - component: {fileID: 5340256545264297393}
   - component: {fileID: 2898650311827464018}
   - component: {fileID: 9007206868627597200}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WaterStencilMask (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -955,7 +955,7 @@ GameObject:
   - component: {fileID: 1303904257474604529}
   - component: {fileID: 7777463553869867712}
   - component: {fileID: 7821832277861931078}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1067,7 +1067,7 @@ GameObject:
   - component: {fileID: 3301457114283987753}
   - component: {fileID: 1814669614896710450}
   - component: {fileID: 5829614226299846254}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1181,7 +1181,7 @@ GameObject:
   - component: {fileID: 8377886708804779793}
   - component: {fileID: 391180655820154546}
   - component: {fileID: 6629301312266840842}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Capsule (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1293,7 +1293,7 @@ GameObject:
   - component: {fileID: 1331947672700357691}
   - component: {fileID: 958854204244623521}
   - component: {fileID: 8777683191415772174}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (16)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1403,7 +1403,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8312472271732847465}
   - component: {fileID: 6440126009937007515}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (19)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -1449,7 +1449,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3815672435147381298}
   - component: {fileID: 573068871893194194}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (4)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -1500,7 +1500,7 @@ GameObject:
   - component: {fileID: 5605991336111401324}
   - component: {fileID: 4348997947820047457}
   - component: {fileID: 6813460526811240843}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1617,7 +1617,7 @@ GameObject:
   - component: {fileID: 6138210487561117054}
   - component: {fileID: 1872049925599269792}
   - component: {fileID: 1029998801860535657}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1729,7 +1729,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7249216684523873543}
   - component: {fileID: 5769871803303076415}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (13)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -1777,7 +1777,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8092097704984564675}
   - component: {fileID: 3238898876933990040}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (12)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -1828,7 +1828,7 @@ GameObject:
   - component: {fileID: 9218502677192926160}
   - component: {fileID: 8009673851307473109}
   - component: {fileID: 5410177426582944229}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1940,7 +1940,7 @@ GameObject:
   - component: {fileID: 4336121102078415133}
   - component: {fileID: 573629836293406023}
   - component: {fileID: 6618901469278146766}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2052,7 +2052,7 @@ GameObject:
   - component: {fileID: 4369202829346142013}
   - component: {fileID: 8170993049139086022}
   - component: {fileID: 4945961230111204670}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2166,7 +2166,7 @@ GameObject:
   - component: {fileID: 6512003391308825467}
   - component: {fileID: 7549446694573737547}
   - component: {fileID: 4179559351789620554}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2278,7 +2278,7 @@ GameObject:
   - component: {fileID: 1062358682949596258}
   - component: {fileID: 9120161147656032101}
   - component: {fileID: 4653629641076887508}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2388,7 +2388,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3172752753825427329}
   - component: {fileID: 8027812345543054228}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (14)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -2437,7 +2437,7 @@ GameObject:
   - component: {fileID: 3604566705730702459}
   - component: {fileID: 5168365471794872732}
   - component: {fileID: 8273347089295899618}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2549,7 +2549,7 @@ GameObject:
   - component: {fileID: 1889210869251134875}
   - component: {fileID: 452230357724756902}
   - component: {fileID: 6943914669160600964}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2659,7 +2659,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7626967302080190905}
   - component: {fileID: 2643220593217073701}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (18)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -2706,7 +2706,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6678776104260552112}
   - component: {fileID: 2866696229086100781}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (2)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -2756,7 +2756,7 @@ GameObject:
   - component: {fileID: 7056292862022545959}
   - component: {fileID: 7419969494779711400}
   - component: {fileID: 6492347876188768720}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (17)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2868,7 +2868,7 @@ GameObject:
   - component: {fileID: 4208175101952832418}
   - component: {fileID: 1265846348808771552}
   - component: {fileID: 2418692288890424289}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (14)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2978,7 +2978,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8915004200283564307}
   - component: {fileID: 6057075579090570975}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (6)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -3027,7 +3027,7 @@ GameObject:
   - component: {fileID: 457809689625062656}
   - component: {fileID: 3268122878511183047}
   - component: {fileID: 200419888390129895}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WaterStencilMask (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3115,7 +3115,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5777325061113330649}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ChestSpawnPoint (3)
   m_TagString: Untagged
   m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
@@ -3149,7 +3149,7 @@ GameObject:
   - component: {fileID: 453708846462755105}
   - component: {fileID: 2339643086197991303}
   - component: {fileID: 8627597505364021639}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3263,7 +3263,7 @@ GameObject:
   - component: {fileID: 5081575648648342482}
   - component: {fileID: 776713410874190321}
   - component: {fileID: 1047610094864517868}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3377,7 +3377,7 @@ GameObject:
   - component: {fileID: 54892092291263619}
   - component: {fileID: 6352317868383131221}
   - component: {fileID: 4992876746167096276}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: AIShip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3488,14 +3488,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIShipController
   ShowTopMostFoldoutHeaderGroup: 1
-  dockWaitTime: 10
-  arriveDistance: 1.5
+  dockWaitTime: 5
+  arriveDistance: 4
+  slowdownDistance: 15
+  dockStandoff: 4
+  departClearDistance: 12
   startIsland: {fileID: 0}
+  heightOffset: -3.4
   bobHeight: 0.15
   bobSpeed: 1
   bankAngle: 6
   bankSmooth: 2
   turnRate: 20
+  minTurnRadius: 12
 --- !u!114 &6352317868383131221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3530,16 +3535,16 @@ NavMeshAgent:
   m_GameObject: {fileID: 5535418517726532174}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
+  m_Radius: 14
+  m_Speed: 8
+  m_Acceleration: 10
   avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_AngularSpeed: 50
+  m_StoppingDistance: 10
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 2
+  m_Height: 3
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
@@ -3552,7 +3557,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1951225841640375172}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ChestSpawnPoint (1)
   m_TagString: Untagged
   m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
@@ -3584,7 +3589,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4466980655395824517}
   - component: {fileID: 6578904043825605516}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -3631,7 +3636,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2598024383679232851}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ShipMeshes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3692,7 +3697,7 @@ GameObject:
   - component: {fileID: 7062436488483466849}
   - component: {fileID: 668534326563119458}
   - component: {fileID: 8791570134306206770}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3802,7 +3807,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5059261239242052292}
   - component: {fileID: 6882812652471156738}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (7)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -3852,7 +3857,7 @@ GameObject:
   - component: {fileID: 276732331016698796}
   - component: {fileID: 7475021094108642092}
   - component: {fileID: 1206080075340038672}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3962,7 +3967,7 @@ GameObject:
   m_Component:
   - component: {fileID: 708089138469023404}
   - component: {fileID: 7923867560426364745}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (1)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -4013,7 +4018,7 @@ GameObject:
   - component: {fileID: 5114607630416608059}
   - component: {fileID: 5549238839207707038}
   - component: {fileID: 3119627712794632337}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4103,7 +4108,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6450618201186450076}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ChestSpawnPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4141,7 +4146,7 @@ GameObject:
   - component: {fileID: 4772230785355164666}
   - component: {fileID: 7318758841360909478}
   - component: {fileID: 6399445262695505303}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4255,7 +4260,7 @@ GameObject:
   - component: {fileID: 4523090878659976668}
   - component: {fileID: 8953310311679074413}
   - component: {fileID: 2653382747725083766}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4366,7 +4371,7 @@ GameObject:
   - component: {fileID: 3279722682151189714}
   - component: {fileID: 3839775325148735520}
   - component: {fileID: 4769000345797611319}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WaterStencilMasks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4463,7 +4468,7 @@ GameObject:
   - component: {fileID: 848684402766953736}
   - component: {fileID: 3455381248319891751}
   - component: {fileID: 3449049219868339699}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4576,7 +4581,7 @@ GameObject:
   - component: {fileID: 1389642313695743788}
   - component: {fileID: 7280624156726844692}
   - component: {fileID: 5135252892910117927}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WaterStencilMask (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4664,7 +4669,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7202057692987221475}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ChestSpawnPoint (2)
   m_TagString: Untagged
   m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
@@ -4696,7 +4701,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6811314774901162292}
   - component: {fileID: 4981214428965821719}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (5)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -4745,7 +4750,7 @@ GameObject:
   m_Component:
   - component: {fileID: 124701469321225290}
   - component: {fileID: 2648123942568442795}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (16)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -4793,7 +4798,7 @@ GameObject:
   - component: {fileID: 1848358709785156207}
   - component: {fileID: 7589851941097823185}
   - component: {fileID: 214197421075145849}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4905,7 +4910,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2244447425716860712}
   - component: {fileID: 7393780997149981907}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (11)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -4955,7 +4960,7 @@ GameObject:
   - component: {fileID: 6425133386568109015}
   - component: {fileID: 8154266849904736741}
   - component: {fileID: 4373087229411019864}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5070,7 +5075,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5949524277791384847}
   - component: {fileID: 8185148161171279655}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (8)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -5120,7 +5125,7 @@ GameObject:
   - component: {fileID: 239475877018468777}
   - component: {fileID: 4062863829502531969}
   - component: {fileID: 1540109132810498387}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5234,7 +5239,7 @@ GameObject:
   - component: {fileID: 8021617951667901683}
   - component: {fileID: 7759203806664135515}
   - component: {fileID: 8584700282542293303}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5346,7 +5351,7 @@ GameObject:
   - component: {fileID: 8677946361668260410}
   - component: {fileID: 4226383444278232193}
   - component: {fileID: 853853951850663113}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Capsule (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5457,7 +5462,7 @@ GameObject:
   - component: {fileID: 6159126743167870100}
   - component: {fileID: 3429218166395302395}
   - component: {fileID: 8126738329430287996}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WaterStencilMask (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5548,7 +5553,7 @@ GameObject:
   - component: {fileID: 5637261601524631942}
   - component: {fileID: 3280687199419706207}
   - component: {fileID: 6206083062116483986}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (15)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5658,7 +5663,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2220172586058258184}
   - component: {fileID: 5596724276519207747}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WayPoint (17)
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -5705,7 +5710,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2418755749751790723}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CrewWayPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5759,7 +5764,7 @@ GameObject:
   - component: {fileID: 5237231341096094591}
   - component: {fileID: 8823951469279947162}
   - component: {fileID: 1311446508020516908}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5871,7 +5876,7 @@ GameObject:
   - component: {fileID: 4289542928173467390}
   - component: {fileID: 1302757432108874431}
   - component: {fileID: 8574241262673399127}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (18)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5983,7 +5988,7 @@ GameObject:
   - component: {fileID: 2295272947155853223}
   - component: {fileID: 6035530034821924539}
   - component: {fileID: 18449173411944484}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6094,7 +6099,7 @@ GameObject:
   - component: {fileID: 4864600368914078386}
   - component: {fileID: 4562277161299082001}
   - component: {fileID: 2957936975796843928}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

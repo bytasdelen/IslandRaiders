@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// bir silahin istatistiklerini tutar, hem eldeki hem yerdeki silahta bulunur
+// bir silahın istatistiklerini tutar, hem eldeki hem yerdeki silahta bulunur
 public class Weapon : MonoBehaviour
 {
     [SerializeField] private string weaponName = "Pistol";

@@ -1,10 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-// oyuncunun gemide olma (parent) ve dumen surme durumunu yonetir.
-// parent + local space senkronu karsi makinelerdeki kaymayi cozer;
-// owner'in kendi makinesinde ise gemi hareketi CharacterController.Move ile uygulanir
-// (aktif bir CharacterController parent'tan gelen tasimayi kabul etmez).
+// oyuncunun gemide olma ve dumen sürme durumunu yonetir.
 public class PlayerRider : NetworkBehaviour
 {
     [SerializeField] private CharacterController characterController;
@@ -62,7 +59,6 @@ public class PlayerRider : NetworkBehaviour
 
         Transform boat = currentBoat.NetworkObject.transform;
 
-        // dumendeyken parent tasir (CC kapali); delta birikmesin diye referans guncel tutulur
         if (isDriving || !characterController.enabled)
         {
             lastBoatPosition = boat.position;
@@ -72,13 +68,11 @@ public class PlayerRider : NetworkBehaviour
 
         Vector3 posDelta = boat.position - lastBoatPosition;
 
-        // gemi donusunun (yaw + dalga pitch/roll) pozisyon etkisi manuel uygulanir;
-        // yon donusu parent hiyerarsisinden otomatik gelir, tekrar dondurulmez
         Quaternion rotDelta = boat.rotation * Quaternion.Inverse(lastBoatRotation);
         Vector3 offset = transform.position - boat.position;
         Vector3 followMove = posDelta + (rotDelta * offset - offset);
 
-        // yatay Move isGrounded'i sifirlamasin diye yerdeyken minik asagi itis eklenir
+        // yatay Move isGrounded'i sifirlamasin diye yerdeyken minik asagi itis ekliyoruz
         if (characterController.isGrounded)
         {
             followMove += Vector3.down * 0.05f;
@@ -109,7 +103,7 @@ public class PlayerRider : NetworkBehaviour
         pendingSeat = seat;
     }
 
-    // dumene gecince/cikinca PlayerInteraction cagirir
+    // dumene gecince/çıkınca PlayerInteraction cagirir
     public void SetDriving(bool driving)
     {
         isDriving = driving;
@@ -122,7 +116,7 @@ public class PlayerRider : NetworkBehaviour
         characterController.enabled = !driving;
         playerController.enabled = !driving;
         playerWeapon.enabled = !driving;
-        // playerLook acik kalir: dumendeyken de fare govdeyi (ve onunla BoatCamera'yi) dondurur
+        // playerLook açık kalir: dumendeyken de fare govdeyi (ve onunla BoatCamera'yi) dondurur
         fpsCamera.SetActive(!driving);
         boatCamera.SetActive(driving);
 

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// sadece gorsel amacli, network'e dahil degil - hasar zaten sunucuda aninda hesaplandi
+// sadece gorsel amacli, network'e dahil degil - hasar zaten sunucuda aninda hesaplanýyor
 public class BulletVisual : MonoBehaviour
 {
     [SerializeField] private float speed = 80f;

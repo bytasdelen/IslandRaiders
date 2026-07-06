@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// WaypointNode grafi uzerinde yol bulma islemleri (BFS - en az dugum sayili yol yeterli,
-// gemi ici graflar kucuk oldugu icin agirlikli Dijkstra'ya gerek yok)
 public static class ShipPathfinder
 {
     public static List<WaypointNode> FindPath(WaypointNode start, WaypointNode goal)
@@ -51,7 +49,7 @@ public static class ShipPathfinder
         return path;
     }
 
-    // grafa herhangi bir node'dan baslayip baglantilarla ulasilabilen tum node'lari toplar;
+    // grafa herhangi bir node'dan baslayip baglantilarla ulasilabilen tüm node'lari toplar;
     // CrewMember kendi graf parcasini boylece tek tek elle listelemek zorunda kalmiyor
     public static List<WaypointNode> CollectReachable(WaypointNode start)
     {
@@ -81,8 +79,7 @@ public static class ShipPathfinder
         return result;
     }
 
-    // baslangictan itibaren komsuluk iliskilerini rastgele takip ederek bir devriye
-    // rotasi olusturur; ayni node'a hemen geri donmemeye calisir (mumkunse)
+    // baslangictan itibaren komsuluk ilişkilerini rastgele takip ederek bir devriye rotasi olusturur; ayni node'a geri donmemeye çalışır
     public static WaypointNode[] BuildRandomPatrolRoute(WaypointNode start, int steps)
     {
         var route = new List<WaypointNode> { start };

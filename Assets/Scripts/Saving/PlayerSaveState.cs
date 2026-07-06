@@ -1,9 +1,9 @@
 using Unity.Netcode;
 using UnityEngine;
 
-// oyuncunun ilerlemesini spawn'da yukler, despawn'da (cikis veya host kapanisi) kaydeder.
-// pozisyon bilerek kaydedilmiyor: gemiler her oturum rastgele spawn oldugu icin
-// kayitli konum artik var olmayan bir guvertenin ustune denk gelebilirdi
+// oyuncunun ilerlemesini spawn'da yükler, despawn'da (çıkış veya host kapanışı) kaydeder.
+// pozisyon bilerek kaydedilmiyor: gemiler her oturum rastgele spawn olduğu için
+// kayıtlı konum artık var olmayan bir güvertenin üstüne denk gelebilirdi
 public class PlayerSaveState : NetworkBehaviour
 {
     [SerializeField] private PlayerHealth health;
@@ -11,8 +11,6 @@ public class PlayerSaveState : NetworkBehaviour
 
     private string playerName;
 
-    // OnNetworkSpawn yerine Start: ayni objedeki diger behaviour'larin spawn kurulumu
-    // (envanterin baslangic slotlari, canin max'a cekilmesi) bitmeden yukleme yapilmasin
     private void Start()
     {
         if (!IsServer || !IsSpawned)

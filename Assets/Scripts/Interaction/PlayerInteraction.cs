@@ -53,8 +53,7 @@ public class PlayerInteraction : NetworkBehaviour
         {
             return;
         }
-
-        // dumendeyken nisan almiyoruz, ipucu gizli kalir (E cikis yapar zaten)
+         
         if (currentWheel != null)
         {
             promptUI.Hide();
@@ -79,8 +78,7 @@ public class PlayerInteraction : NetworkBehaviour
     }
 
     private void OnInteract(InputAction.CallbackContext context)
-    {
-        // dumendeyken E her kosulda cikis yapar (nisan almaya gerek yok)
+    { 
         if (currentWheel != null)
         {
             currentWheel.RequestToggle(NetworkObject);
@@ -88,8 +86,7 @@ public class PlayerInteraction : NetworkBehaviour
             currentWheel = null;
             return;
         }
-
-        // elimizde sandik varsa E her zaman acma anlamina gelir
+         
         if (inventory.Database.Get(inventory.GetSelectedItemId())?.IsChest == true)
         {
             OpenChestServerRpc();
@@ -131,11 +128,11 @@ public class PlayerInteraction : NetworkBehaviour
         WorldItem item = netObj.GetComponent<WorldItem>();
         if (item != null && inventory.TryAddItem(item.ItemId, item.Ammo))
         {
-            // sandik calindiysa, despawn'dan once (parent hala gemiyken) o geminin mürettebatini uyar
+            // sandık çalındıysa, despawn'dan önce (parent hala gemiyken) o geminin mürettebatını uyar
             if (netObj.GetComponent<Chest>() != null && netObj.GetComponentInParent<IShipDeck>() is IShipDeck ship
                 && CrewAlertSystem.Notify(netObj.transform.position, ship))
             {
-                notifications.NotifyOwner("Mürettebat saldırıya geçti, dikkatli ol!");
+                notifications.NotifyOwner("The crew went on attack!");
             }
             netObj.Despawn();
         }
@@ -154,7 +151,7 @@ public class PlayerInteraction : NetworkBehaviour
         inventory.RemoveSelectedItem();
         int reward = Random.Range(100, 1001);
         inventory.AddCoins(reward);
-        notifications.NotifyOwner($"{reward} coin kazandınız!");
+        notifications.NotifyOwner($"You earned {reward} coins!");
     }
 
     [ServerRpc]
@@ -172,7 +169,7 @@ public class PlayerInteraction : NetworkBehaviour
             return;
         }
 
-        // kalan mermi RemoveSelectedItem'dan ONCE okunmali, o sifirliyor
+        // kalan mermi RemoveSelectedItem'dan ÖNCE okunmalı, o sıfırlıyor
         int remainingAmmo = inventory.GetSelectedAmmo();
         inventory.RemoveSelectedItem();
 
@@ -191,7 +188,7 @@ public class PlayerInteraction : NetworkBehaviour
         NetworkObject netObj = obj.GetComponent<NetworkObject>();
         netObj.Spawn();
 
-        // gemideyken birakilan esya gemiye parentlanmazsa gemi yol alinca oldugu yerde kalir
+        // gemideyken bırakılan eşya gemiye parentlanmazsa gemi yol alınca olduğu yerde kalır
         if (ship != null)
         {
             netObj.TrySetParent(ship.NetworkObject, true);

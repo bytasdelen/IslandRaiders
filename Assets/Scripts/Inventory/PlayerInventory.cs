@@ -62,9 +62,9 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    // ilk bos slota ekler, envanter doluysa false doner.
+    // ilk bos slota ekler, envanter doluysa false döner.
     // ammoOverride verilmezse (-1) silahin max mermisiyle baslar - yerden alinan,
-    // kalan mermisi belli olan bir silah icin gercek deger WorldItem'dan gelir
+    // kalan mermisi belli olan bir silah icin gercek değer WorldItem'dan gelir
     public bool TryAddItem(int itemId, int ammoOverride = -1)
     {
         if (!IsServer)
@@ -101,7 +101,7 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    // silah degilse (HeldPrefab'inda Weapon component'i yoksa) 0 doner
+    // silah degilse (HeldPrefab'inda Weapon component'i yoksa) 0 döner
     private int GetMaxAmmo(int itemId)
     {
         ItemDefinition def = database.Get(itemId);

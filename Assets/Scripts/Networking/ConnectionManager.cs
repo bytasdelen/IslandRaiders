@@ -47,8 +47,7 @@ public class ConnectionManager : MonoBehaviour
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
         NetworkManager.Singleton.StartClient();
     }
-
-    // ad, baglanti onayinda payload olarak sunucuya gider ve save dosyasinin anahtari olur
+     
     private void SendPlayerName()
     {
         NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.UTF8.GetBytes(nameInputField.text);

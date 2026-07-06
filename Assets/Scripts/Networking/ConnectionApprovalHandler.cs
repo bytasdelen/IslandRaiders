@@ -9,8 +9,7 @@ public class ConnectionApprovalHandler : MonoBehaviour
     private int spawnIndex;
 
     private void Start()
-    {
-        // NGO'da bu property tek callback kabul eder, = ile atanir (+= degil)
+    { 
         NetworkManager.Singleton.ConnectionApprovalCallback = HandleApproval;
     }
 
