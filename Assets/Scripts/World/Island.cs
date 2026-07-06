@@ -40,17 +40,26 @@ public class Island : MonoBehaviour
     }
 
     // belli bir dock noktasinin TAM ONUNDEKI (deniz tarafi) açık su noktasi: gemi buraya gelince dock'a dogru hizalidir, dumduz iceri girer, varista donmesi gerekmez
-    public Vector3 ApproachPointForDock(int slot)
+    public float ApproachMargin => approachMargin;
+
+    // dock'un deniz normali ekseninde, dock'tan 'distance' kadar açıktaki navmesh noktası (yanaşma lane'i)
+    public Vector3 LanePoint(int slot, float distance)
     {
         Vector3 dockPos = dockPoints[slot].position;
-        Vector3 target = dockPos + SeawardDir(slot) * approachMargin;
+        Vector3 target = dockPos + SeawardDir(slot) * distance;
         target.y = dockPos.y;
 
-        if (NavMesh.SamplePosition(target, out NavMeshHit hit, approachMargin, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(target, out NavMeshHit hit, Mathf.Max(distance, 1f), NavMesh.AllAreas))
         {
             return hit.position;
         }
         return target;
+    }
+
+    // dock'un TAM ÖNÜNDEKİ (deniz tarafı) yakın açık su noktası
+    public Vector3 ApproachPointForDock(int slot)
+    {
+        return LanePoint(slot, approachMargin);
     }
 
     // adaya genel yaklasma noktasi (slot yokken/bekleme icin)

@@ -5,10 +5,11 @@ using UnityEngine.AI;
 
 // yapay zeka gemisi; adalar arasında NavMesh üzerinden otomatik yol bulur ve ada duraklarında
 // bir süre bekler. Seyir ile YANASMA ayrı: açık denizde NavMesh + araç kinematigi (desiredVelocity
-// yönüne, kendi dönüş yarıçapıyla, yalnız burnü yönünde ilerler); ama son metrelerde kinematik
-// bırakılır - gemi deterministik bir kübik Bezier eğrisi üzerinde ilerler. Eğri geminin O ANKI
-// pozunda başlar, dock'un önünde adaya TAM hızalı biter; girış açısı ne olursa olsun sonuç hep aynı.
-// Kalkışta da simetrik: gemi önce denize geri çıkıp burnunu açık suya çevirir, sonra NavMesh devralır.
+// yönüne, kendi dönüş yarıçapıyla, yalnız burnü yönünde ilerler). YANAŞMA iki adımlı: gemi önce
+// dock'un deniz normali ekseninde uzak bir noktaya, oradan yakın noktaya gider (bu düz segment onu
+// eksene hizalar), sonra son metreleri deterministik bir kübik Bezier ile dümdüz ve yumuşak girer.
+// Kalkışta gemi düz geri geri (astern) denize açılır, dokta dönmez; dönüşü açık suda NavMesh yol
+// alırken doğal bir yayla yapar (dönüş yayı minTurnRadius yüzünden adaya en fazla o kadar sokulur).
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class AIShipController : NetworkBehaviour, IShipDeck
@@ -22,6 +23,7 @@ public class AIShipController : NetworkBehaviour, IShipDeck
     [SerializeField] private float dockStandoff = 4f;       // dock noktasından bu kadar önce durur (burun karaya girmesin)
     [SerializeField] private float berthSpeed = 4f;         // yanasma/kalkış eğrisi ilerleme hızı
     [SerializeField] private float minBerthTime = 3f;       // manevra en az bu kadar sürer: kısa eğride ani "yerinde dönüş"ü engeller
+    [SerializeField] private float lineupDistance = 25f;    // yanaşmadan önce eksene hizalanma koşusu: yakın noktanın bu kadar denizinde başlar
 
     [Header("Start")]
     [SerializeField] private Island startIsland;          // spawn'da yanasacağı ada
@@ -46,7 +48,8 @@ public class AIShipController : NetworkBehaviour, IShipDeck
     private Island destinationIsland; 
     private int dockSlot = -1;
     private float resumeTime;
-    private Vector3 pendingApproach;   
+    private Vector3 pendingApproach;   // Traveling'in gittiği güncel navmesh hedefi (önce uzak lane, sonra yakın nokta)
+    private bool lineupPending;        // true = iki adımlı yaklaşmanın 1. adımında (uzak lane noktasına gidiyor)
 
     private float baseHeight;          // dalga salınımı bu yükseklik etrafında olur
     private float currentBank;
@@ -156,17 +159,9 @@ public class AIShipController : NetworkBehaviour, IShipDeck
             return;
         }
 
-        // önce mevcut adadan denize geri çık: burun karaya dönükken ileri gidersek karaya bineriz
+        // önce mevcut adadan denize düz GERİ (astern) çık: burun karaya dönük kalır, dönmez;
+        // dönüşü açık suda yol alırken yapar. Çıkış noktası dock'un ~20m denizinde
         int leavingSlot = dockSlot;
-        Vector3 seaward = leavingSlot >= 0
-            ? currentIsland.SeawardDir(leavingSlot)
-            : (transform.position - currentIsland.transform.position);
-        seaward.y = 0f;
-        if (seaward.sqrMagnitude < 0.01f)
-        {
-            seaward = Vector3.forward;
-        }
-        seaward.Normalize();
         Vector3 seaExit = leavingSlot >= 0
             ? currentIsland.ApproachPointForDock(leavingSlot)
             : currentIsland.ApproachPointFor(transform.position);
@@ -174,13 +169,22 @@ public class AIShipController : NetworkBehaviour, IShipDeck
         currentIsland.ReleaseDock(dockSlot, this);
         destinationIsland = destination;
 
-        // hedef adada bir dock kap; onun önündeki noktaya, dolu ise genel yaklaşma noktasına git
+        // hedef adada bir dock kap; kaptıysa iki adımlı yaklaşmanın 1. adımına (uzak lane noktası)
+        // yönel - böylece son navmesh parçası deniz normali ekseni boyunca gelir ve gemi hizalanır.
+        // Dock doluysa genel yaklaşma noktasına gidip bekler (lane yok)
         dockSlot = destination.TryReserveDock(this);
-        pendingApproach = dockSlot >= 0
-            ? destination.ApproachPointForDock(dockSlot)
-            : destination.ApproachPointFor(transform.position);
+        if (dockSlot >= 0)
+        {
+            pendingApproach = destination.LanePoint(dockSlot, destination.ApproachMargin + lineupDistance);
+            lineupPending = true;
+        }
+        else
+        {
+            pendingApproach = destination.ApproachPointFor(transform.position);
+            lineupPending = false;
+        }
 
-        StartUndock(seaExit, seaward);
+        StartUndock(seaExit);
         state = State.Undocking;
     }
 
@@ -209,24 +213,39 @@ public class AIShipController : NetworkBehaviour, IShipDeck
 
     private void TickTraveling()
     {
-        if (ReachedDestination())
+        if (!ReachedDestination())
+        {
+            return;
+        }
+
+        if (lineupPending)
+        {
+            // uzak lane noktasına varıldı; şimdi eksende yakın noktaya in. Bu düz segment (ikisi de
+            // aynı deniz normali ekseninde) gemiyi dock'a hizalar, varışta dümdüz girer
+            lineupPending = false;
+            pendingApproach = destinationIsland.ApproachPointForDock(dockSlot);
+            agent.SetDestination(pendingApproach);
+        }
+        else
         {
             TryDockOrWait();
         }
     }
 
-    // yaklaşma noktasına varıldı: dock kapalıysa (kalkışta kapılmıştı) yanasma eğrisine geç;
-    // yoksa şimdi bir dock kapmayı dene, o da yoksa bekle
+    // yakın yaklaşma noktasına varıldı (eksene hizalı): dock zaten bizimse dümdüz gir. Dock henüz
+    // yoksa şimdi kapmayı dene - kaparsak önce hizalanma koşusuna dön, o da yoksa bekle
     private void TryDockOrWait()
     {
-        if (dockSlot < 0)
-        {
-            dockSlot = destinationIsland.TryReserveDock(this);
-        }
-
         if (dockSlot >= 0)
         {
             StartDockBerth();
+            return;
+        }
+
+        dockSlot = destinationIsland.TryReserveDock(this);
+        if (dockSlot >= 0)
+        {
+            BeginLineup();
         }
         else
         {
@@ -236,13 +255,22 @@ public class AIShipController : NetworkBehaviour, IShipDeck
         }
     }
 
+    // iki adımlı yaklaşmayı başlat: önce uzak lane noktasına git (eksene hizalanma), oradan yakın noktaya
+    private void BeginLineup()
+    {
+        pendingApproach = destinationIsland.LanePoint(dockSlot, destinationIsland.ApproachMargin + lineupDistance);
+        lineupPending = true;
+        agent.SetDestination(pendingApproach);
+        state = State.Traveling;
+    }
+
     private void TickWaitingForDock()
     {
-        // yaklaşma noktasında bekler, slot boşaldığı frame yanasma yaya başlar
+        // yaklaşma noktasında bekler; slot boşaldığı frame iki adımlı yaklaşmayla eksene hizalanıp girer
         dockSlot = destinationIsland.TryReserveDock(this);
         if (dockSlot >= 0)
         {
-            StartDockBerth();
+            BeginLineup();
         }
     }
 
@@ -381,7 +409,7 @@ public class AIShipController : NetworkBehaviour, IShipDeck
                 state = State.Docked;
                 resumeTime = Time.time + dockWaitTime;
             }
-            else // Undocking: artık denize dönük ve açık sudayız, NavMesh devralabilir
+            else // Undocking: açık sudayız (burun hâlâ adaya dönük), NavMesh yol alırken çevirir
             {
                 agent.SetDestination(pendingApproach);
                 state = State.Traveling;
@@ -414,15 +442,16 @@ public class AIShipController : NetworkBehaviour, IShipDeck
         mDuration = Mathf.Max(ApproxBezierLength() / berthSpeed, minBerthTime);
     }
 
-    // Kalkış manevraı: dock'tan denizdeki çıkış noktasına düz kayma + burun deniz yönüne dönüş
-    private void StartUndock(Vector3 seaExit, Vector3 seaward)
+    // Kalkış manevrası: dock'tan denizdeki çıkış noktasına DÜZ GERİ (astern) kayma. Burun SABİT
+    // kalır (dönmez) - gemi geri geri denize açılır, dönüşü sonra açık suda seyir ederken yapar.
+    private void StartUndock(Vector3 seaExit)
     {
         Vector3 p0 = transform.position;
         p0.y = 0f;
         mP0 = p0;
         mP3 = new Vector3(seaExit.x, 0f, seaExit.z);
         mStartHeading = heading;
-        mEndHeading = Quaternion.LookRotation(-seaward.normalized); // burun denize (bow = seaward)
+        mEndHeading = heading; // burun sabit: dokta dönmez, sadece geri geri çıkar
         mUseBezier = false;
         mT = 0f;
         mDuration = Mathf.Max(Vector3.Distance(mP0, mP3) / berthSpeed, minBerthTime);
