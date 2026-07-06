@@ -491,6 +491,7 @@ Transform:
   m_Children:
   - {fileID: 600736005}
   - {fileID: 461420336}
+  - {fileID: 1853484316}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &600736003
@@ -523,12 +524,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   aiShipPrefab: {fileID: 5535418517726532174, guid: 29cb244237fc052449d14928de23d025, type: 3}
-  initialAiShipCount: 8
+  initialAiShipCount: 2
   playerBoatPrefab: {fileID: 5535418517726532174, guid: 8cf48946090cee84bbcfe922002f59c7, type: 3}
   playerBoatSpawnPosition: {x: 33, y: -3.5, z: 5.5}
   initialPlayerBoatCount: 1
   itemDatabase: {fileID: 11400000, guid: 878fb72491db7e04cb3803f1dd4a0538, type: 2}
-  initialWeaponCount: 15
+  initialWeaponCount: 12
 --- !u!4 &600736005
 Transform:
   m_ObjectHideFlags: 0
@@ -1001,6 +1002,50 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4107105407995098595, guid: 26f5700fb55e4c248901bf64283b6536, type: 3}
   m_PrefabInstance: {fileID: 1768662345}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1853484315
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1853484316}
+  - component: {fileID: 1853484317}
+  m_Layer: 0
+  m_Name: PoolManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1853484316
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853484315}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 589958110}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1853484317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853484315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18c968af6434e01459b626a93df9a6ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoolManager
 --- !u!1 &2138150680
 GameObject:
   m_ObjectHideFlags: 0
@@ -1098,7 +1143,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4107105407995098595, guid: 26f5700fb55e4c248901bf64283b6536, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9.62
+      value: 12.7
       objectReference: {fileID: 0}
     - target: {fileID: 4107105407995098595, guid: 26f5700fb55e4c248901bf64283b6536, type: 3}
       propertyPath: m_LocalPosition.y

@@ -45,8 +45,10 @@ public class GameManager : MonoBehaviour
         }
 
         // konum önemsiz - AIShipController kendi OnNetworkSpawn'ında rastgele bir adaya yanaşır
-        GameObject obj = Instantiate(aiShipPrefab);
-        obj.GetComponent<NetworkObject>().Spawn();
+        NetworkObject netObj = PoolManager.Instance.Get(aiShipPrefab, Vector3.zero, Quaternion.identity);
+        netObj.GetComponent<AIShipController>()?.ResetForReuse();
+        netObj.GetComponent<ShipRandomizer>()?.ResetForReuse();
+        netObj.Spawn();
     }
 
     public void SpawnPlayerBoat(Vector3 position, Quaternion rotation)
@@ -77,14 +79,15 @@ public class GameManager : MonoBehaviour
         Island island = Island.All[Random.Range(0, Island.All.Count)];
         Vector3 point = island.RandomSurfacePoint();
 
-        GameObject obj = Instantiate(def.WorldPrefab, point, Quaternion.identity);
-        obj.GetComponent<WorldItem>().Configure(itemId);
-        WorldItemUtility.SnapToGround(obj, point.y);
-        obj.GetComponent<NetworkObject>().Spawn();
+        NetworkObject netObj = PoolManager.Instance.Get(def.WorldPrefab, point, Quaternion.identity);
+        netObj.GetComponent<WorldItem>().Configure(itemId);
+        WorldItemUtility.SnapToGround(netObj.gameObject, point.y);
+        netObj.Spawn();
     }
 
     // silahlar (HeldPrefab'inda Weapon component'i olan kayıtlar) arasından rastgele bir itemId seçer
-    private int RandomWeaponItemId()
+    // (QA panelindeki "Give Gun" da bunu kullanir, bu yuzden public)
+    public int RandomWeaponItemId()
     {
         var weaponIds = new List<int>();
         for (int i = 0; i < itemDatabase.Items.Length; i++)
@@ -98,6 +101,28 @@ public class GameManager : MonoBehaviour
         return weaponIds.Count > 0 ? weaponIds[Random.Range(0, weaponIds.Count)] : -1;
     }
 
+    // QA/test amacli: tek bir AI gemiyi anında, verilen adaya yanasmis halde spawn eder
+    public GameObject SpawnAIShipAt(Island island)
+    {
+        if (aiShipPrefab == null)
+        {
+            return null;
+        }
+
+        NetworkObject netObj = PoolManager.Instance.Get(aiShipPrefab, Vector3.zero, Quaternion.identity);
+        AIShipController controller = netObj.GetComponent<AIShipController>();
+        controller?.ResetForReuse();
+        netObj.GetComponent<ShipRandomizer>()?.ResetForReuse();
+        netObj.Spawn();
+
+        if (island != null && controller != null)
+        {
+            controller.ForceDock(island);
+        }
+
+        return netObj.gameObject;
+    }
+
     // --- kayittan geri kurma fabrikasi (SaveManager cagirir) ---
     // AI gemiyi kayitli konumda, rastgele uretimi kapatilmis ve seyre devam edecek sekilde spawn eder
     public GameObject SpawnRestoredShip(Vector3 position, Quaternion rotation)
@@ -107,9 +132,11 @@ public class GameManager : MonoBehaviour
             return null;
         }
 
-        GameObject shipObj = Instantiate(aiShipPrefab, position, rotation);
+        NetworkObject netObj = PoolManager.Instance.Get(aiShipPrefab, position, rotation);
+        GameObject shipObj = netObj.gameObject;
 
         ShipRandomizer randomizer = shipObj.GetComponent<ShipRandomizer>();
+        randomizer?.ResetForReuse();
         if (randomizer != null)
         {
             randomizer.Suppress();
@@ -118,10 +145,11 @@ public class GameManager : MonoBehaviour
         AIShipController controller = shipObj.GetComponent<AIShipController>();
         if (controller != null)
         {
+            controller.ResetForReuse();
             controller.RestoreAt(position, rotation);
         }
 
-        shipObj.GetComponent<NetworkObject>().Spawn();
+        netObj.Spawn();
         return shipObj;
     }
 
@@ -149,10 +177,8 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        GameObject obj = Instantiate(def.WorldPrefab, position, rotation);
-        obj.GetComponent<WorldItem>().Configure(itemId, ammo);
-
-        NetworkObject netObj = obj.GetComponent<NetworkObject>();
+        NetworkObject netObj = PoolManager.Instance.Get(def.WorldPrefab, position, rotation);
+        netObj.GetComponent<WorldItem>().Configure(itemId, ammo);
         netObj.Spawn();
         if (parent != null)
         {

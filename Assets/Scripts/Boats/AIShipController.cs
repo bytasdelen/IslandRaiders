@@ -75,11 +75,48 @@ public class AIShipController : NetworkBehaviour, IShipDeck
         restoreRotation = rotation;
     }
 
+    // havuzdan gelen gemi bir onceki yasamdan "restored" bayragini tasiyabilir - normal (kayitsiz)
+    // bir spawn icin bu Spawn'dan ONCE sifirlanmali, yoksa OnNetworkSpawn eski restore konumunu kullanir
+    public void ResetForReuse()
+    {
+        restored = false;
+    }
+
     // kayit icin TEMIZ konum/yon: transform.position dalga salinimini + heightOffset'i icerir; onu
     // kaydedip geri yuklersek her load'da offset birikir ve gemi giderek batar. Bunun yerine gercek
     // deniz-seviyesi Y'si (baseHeight) ve sadece yaw iceren heading kaydedilir.
     public Vector3 SavePosition => new Vector3(transform.position.x, baseHeight, transform.position.z);
     public Quaternion SaveRotation => heading;
+
+    // QA/test amacli: rastgele ada secimini atlayip gemiyi dogrudan verilen adaya yanastirir
+    public void ForceDock(Island island)
+    {
+        if (!IsServer || island == null)
+        {
+            return;
+        }
+
+        if (currentIsland != null && dockSlot >= 0)
+        {
+            currentIsland.ReleaseDock(dockSlot, this);
+        }
+
+        currentIsland = island;
+        dockSlot = island.TryReserveDock(this);
+
+        Vector3 startPos = dockSlot >= 0 ? island.GetDockPoint(dockSlot).position : island.ApproachPointFor(transform.position);
+        heading = dockSlot >= 0 ? Quaternion.LookRotation(-island.SeawardDir(dockSlot)) : transform.rotation;
+
+        baseHeight = startPos.y;
+        transform.position = startPos;
+        transform.rotation = heading;
+
+        agent.enabled = true;
+        agent.Warp(startPos);
+
+        state = State.Docked;
+        resumeTime = Time.time + dockWaitTime;
+    }
 
     private void Awake()
     {

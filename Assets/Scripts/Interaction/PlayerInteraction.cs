@@ -57,6 +57,10 @@ public class PlayerInteraction : NetworkBehaviour
         if (currentWheel != null)
         {
             promptUI.Hide();
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            {
+                ExitWheel();
+            }
             return;
         }
 
@@ -78,15 +82,13 @@ public class PlayerInteraction : NetworkBehaviour
     }
 
     private void OnInteract(InputAction.CallbackContext context)
-    { 
+    {
         if (currentWheel != null)
         {
-            currentWheel.RequestToggle(NetworkObject);
-            rider.SetDriving(false);
-            currentWheel = null;
+            ExitWheel();
             return;
         }
-         
+
         if (inventory.Database.Get(inventory.GetSelectedItemId())?.IsChest == true)
         {
             OpenChestServerRpc();
@@ -110,6 +112,13 @@ public class PlayerInteraction : NetworkBehaviour
             wheel.RequestToggle(NetworkObject);
             currentWheel = wheel;
         }
+    }
+
+    private void ExitWheel()
+    {
+        currentWheel.RequestToggle(NetworkObject);
+        rider.SetDriving(false);
+        currentWheel = null;
     }
 
     private void OnDrop(InputAction.CallbackContext context)
@@ -181,11 +190,9 @@ public class PlayerInteraction : NetworkBehaviour
             ship = groundHit.collider.GetComponentInParent<IShipDeck>();
         }
 
-        GameObject obj = Instantiate(def.WorldPrefab, dropPos, Quaternion.identity);
-        obj.GetComponent<WorldItem>().Configure(itemId, remainingAmmo);
-        WorldItemUtility.SnapToGround(obj, dropPos.y);
-
-        NetworkObject netObj = obj.GetComponent<NetworkObject>();
+        NetworkObject netObj = PoolManager.Instance.Get(def.WorldPrefab, dropPos, Quaternion.identity);
+        netObj.GetComponent<WorldItem>().Configure(itemId, remainingAmmo);
+        WorldItemUtility.SnapToGround(netObj.gameObject, dropPos.y);
         netObj.Spawn();
 
         // gemideyken bırakılan eşya gemiye parentlanmazsa gemi yol alınca olduğu yerde kalır

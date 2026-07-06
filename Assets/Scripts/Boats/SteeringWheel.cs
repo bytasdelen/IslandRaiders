@@ -28,7 +28,7 @@ public class SteeringWheel : NetworkBehaviour
         ToggleServerRpc(player);
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void ToggleServerRpc(NetworkObjectReference playerRef)
     {
         if (!playerRef.TryGet(out NetworkObject player))

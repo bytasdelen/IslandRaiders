@@ -12,7 +12,12 @@ public class PlayerRider : NetworkBehaviour
     [SerializeField] private float groundCheckDistance = 1.5f;
 
     private IShipDeck currentBoat;
-    public IShipDeck CurrentShip => currentBoat;
+    private IShipDeck serverBoat;
+    // currentBoat sadece sahip client'ta Update() ile guncellenir; sunucuda (host disindaki
+    // oyuncular icin) hep null kalirdi. ServerRpc'lerin ayarladigi serverBoat, IsServer
+    // durumunda dogru gemiyi dondurur (FireServerRpc, QATestPanel gibi sunucu tarafi kullanimlar icin).
+    public IShipDeck CurrentShip => IsServer ? serverBoat : currentBoat;
+    public bool IsDriving => isDriving;
 
     private bool isDriving;
     private Transform pendingSeat;
@@ -89,6 +94,7 @@ public class PlayerRider : NetworkBehaviour
         if (boatRef.TryGet(out NetworkObject boat))
         {
             NetworkObject.TrySetParent(boat, true);
+            serverBoat = boat.GetComponent<IShipDeck>();
         }
     }
 
@@ -96,6 +102,7 @@ public class PlayerRider : NetworkBehaviour
     private void ClearParentServerRpc()
     {
         NetworkObject.TryRemoveParent(true);
+        serverBoat = null;
     }
 
     public void SetPendingSeat(Transform seat)

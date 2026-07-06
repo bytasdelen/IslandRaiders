@@ -101,6 +101,23 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
+    // QA/test amacli: secili slotun mermisini silahin maksimumuna tamamlar
+    public void RefillSelectedAmmo()
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        int itemId = slots[selectedSlot.Value];
+        if (itemId == -1)
+        {
+            return;
+        }
+
+        ammo[selectedSlot.Value] = GetMaxAmmo(itemId);
+    }
+
     // silah degilse (HeldPrefab'inda Weapon component'i yoksa) 0 döner
     private int GetMaxAmmo(int itemId)
     {

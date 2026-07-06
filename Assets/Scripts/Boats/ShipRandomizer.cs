@@ -22,6 +22,13 @@ public class ShipRandomizer : NetworkBehaviour
         hasRolled = true;
     }
 
+    // havuzdan gelen gemi bir önceki yaşamdan "zaten zar attım" bayrağını taşıyabilir - yeni bir
+    // normal spawn için bu sıfırlanmalı, yoksa yeni gemi hiç sandık/mürettebat üretmez
+    public void ResetForReuse()
+    {
+        hasRolled = false;
+    }
+
     private void Update()
     {
         if (!IsServer || hasRolled)
@@ -36,17 +43,26 @@ public class ShipRandomizer : NetworkBehaviour
 
     private void SpawnRandomChest()
     {
-        if (chestSpawnPoints.Length == 0 || Random.value > chestSpawnChance)
+        if (Random.value > chestSpawnChance)
         {
             return;
         }
+        SpawnChestAtRandomPoint();
+    }
+
+    // QA/test amacli: normal rastgele sans olmadan chestSpawnPoints'ten birine dogrudan sandik spawnlar
+    public bool SpawnChestAtRandomPoint()
+    {
+        if (!IsServer || chestSpawnPoints.Length == 0 || chestPrefab == null)
+        {
+            return false;
+        }
 
         Transform point = chestSpawnPoints[Random.Range(0, chestSpawnPoints.Length)];
-        GameObject chestObj = Instantiate(chestPrefab, point.position, point.rotation);
-
-        NetworkObject chestNetObj = chestObj.GetComponent<NetworkObject>();
+        NetworkObject chestNetObj = PoolManager.Instance.Get(chestPrefab, point.position, point.rotation);
         chestNetObj.Spawn();
         chestNetObj.TrySetParent(NetworkObject, true);
+        return true;
     }
 
     private void SpawnRandomCrew()
@@ -88,9 +104,10 @@ public class ShipRandomizer : NetworkBehaviour
         WaypointNode startNode = ShipPathfinder.FindNearest(allNodes, worldPosition);
         WaypointNode[] route = ShipPathfinder.BuildRandomPatrolRoute(startNode, Random.Range(4, patrolMaxWalkSteps));
 
-        CrewMember instance = Instantiate(crewPrefab, startNode.transform.position, startNode.transform.rotation);
-        instance.NetworkObject.Spawn();
-        instance.NetworkObject.TrySetParent(NetworkObject, true);
+        NetworkObject netObj = PoolManager.Instance.Get(crewPrefab.gameObject, startNode.transform.position, startNode.transform.rotation);
+        CrewMember instance = netObj.GetComponent<CrewMember>();
+        netObj.Spawn();
+        netObj.TrySetParent(NetworkObject, true);
         instance.SetPatrolRoute(route);
         return instance;
     }

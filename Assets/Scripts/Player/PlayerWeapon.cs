@@ -75,7 +75,7 @@ public class PlayerWeapon : NetworkBehaviour
         }
         inventory.ConsumeSelectedAmmo();
 
-        bool hitSomething = Physics.Raycast(origin, direction, out RaycastHit hit, weapon.Range);
+        bool hitSomething = TryGetWeaponHit(origin, direction, weapon.Range, out RaycastHit hit);
 
         if (hitSomething && hit.collider.GetComponent<Hitbox>() is Hitbox hitbox)
         {
@@ -96,10 +96,31 @@ public class PlayerWeapon : NetworkBehaviour
         FireEffectClientRpc(muzzlePosition, endPoint);
     }
 
+    private bool TryGetWeaponHit(Vector3 origin, Vector3 direction, float range, out RaycastHit validHit)
+    {
+        RaycastHit[] hits = Physics.RaycastAll(origin, direction, range,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.collider.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            validHit = hit;
+            return true;
+        }
+
+        validHit = default;
+        return false;
+    }
+
     [ClientRpc]
     private void FireEffectClientRpc(Vector3 start, Vector3 end)
     {
-        BulletVisual bullet = Instantiate(bulletPrefab, start, Quaternion.identity);
+        BulletVisual bullet = PoolManager.Instance.GetBullet(bulletPrefab);
         bullet.Launch(start, end);
     }
 }

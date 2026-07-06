@@ -49,12 +49,23 @@ public class CrewMember : NetworkBehaviour
         }
     }
 
+    // havuzdan gelen mürettebat bir önceki yaşamdan kalma durumu taşıyabilir (hedef, düşmanlık, savaş
+    // durumu) - bu yüzden hem ilk spawn'da hem havuzdan yeniden kullanımda tüm AI durumu burada sıfırlanır
     public void SetPatrolRoute(WaypointNode[] route)
     {
         patrolRoute = route;
         allNodes = route.Length > 0 ? ShipPathfinder.CollectReachable(route[0]) : new List<WaypointNode>();
         patrolIndex = 0;
         patrolDirection = 1;
+
+        state = State.Patrol;
+        target = null;
+        isHostile = false;
+        lastSeenTime = float.NegativeInfinity;
+        nextFireTime = 0f;
+        nextRepathTime = 0f;
+        graphPath = null;
+        graphPathIndex = 0;
 
         if (route.Length > 0)
         {
@@ -109,6 +120,20 @@ public class CrewMember : NetworkBehaviour
                 TickPatrol();
                 break;
         }
+    }
+
+    // QA/test amacli: gorus/mesafe kontrolu olmadan dogrudan Combat durumuna gecirir
+    public void ForceCombat(PlayerHealth targetPlayer)
+    {
+        if (!IsServer || targetPlayer == null)
+        {
+            return;
+        }
+
+        isHostile = true;
+        target = targetPlayer;
+        state = State.Combat;
+        lastSeenTime = Time.time;
     }
 
     public bool Alert(Vector3 sourcePosition)
@@ -344,7 +369,7 @@ public class CrewMember : NetworkBehaviour
     [ClientRpc]
     private void FireEffectClientRpc(Vector3 start, Vector3 end)
     {
-        BulletVisual bullet = Instantiate(bulletPrefab, start, Quaternion.identity);
+        BulletVisual bullet = PoolManager.Instance.GetBullet(bulletPrefab);
         bullet.Launch(start, end);
     }
 }

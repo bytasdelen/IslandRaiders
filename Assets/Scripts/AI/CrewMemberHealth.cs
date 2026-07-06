@@ -14,8 +14,15 @@ public class CrewMemberHealth : NetworkBehaviour, IDamageable
     private readonly NetworkVariable<int> currentHealth = new NetworkVariable<int>();
     private readonly NetworkVariable<bool> isDead = new NetworkVariable<bool>();
 
+    private Quaternion initialLocalRotation;
+
     public bool IsDead => isDead.Value;
     public int CurrentHealth => currentHealth.Value;
+
+    private void Awake()
+    {
+        initialLocalRotation = transform.localRotation;
+    }
 
     // kayittan geri yuklerken mürettebatin canini ayarlar
     public void SetHealth(int value)
@@ -28,9 +35,19 @@ public class CrewMemberHealth : NetworkBehaviour, IDamageable
 
     public override void OnNetworkSpawn()
     {
+        // havuzdan gelen bir instance önceki ölümden devrilmiş/collider'ları kapalı halde olabilir -
+        // her spawn'da (ilki de dahil) tüm peer'larda görsel durum temiz başlasın diye burada sıfırlanır
+        CancelInvoke(nameof(DespawnSelf));
+        transform.localRotation = initialLocalRotation;
+        foreach (Collider col in GetComponentsInChildren<Collider>())
+        {
+            col.enabled = true;
+        }
+
         if (IsServer)
         {
             currentHealth.Value = maxHealth;
+            isDead.Value = false;
         }
 
         isDead.OnValueChanged += OnDeadChanged;
@@ -94,11 +111,9 @@ public class CrewMemberHealth : NetworkBehaviour, IDamageable
         Weapon heldWeapon = def.HeldPrefab != null ? def.HeldPrefab.GetComponent<Weapon>() : null;
         int ammo = heldWeapon != null ? heldWeapon.MaxAmmo : -1;
 
-        GameObject obj = Instantiate(def.WorldPrefab, dropPos, Quaternion.identity);
-        obj.GetComponent<WorldItem>().Configure(weaponItemId, ammo);
-        WorldItemUtility.SnapToGround(obj, dropPos.y);
-
-        NetworkObject netObj = obj.GetComponent<NetworkObject>();
+        NetworkObject netObj = PoolManager.Instance.Get(def.WorldPrefab, dropPos, Quaternion.identity);
+        netObj.GetComponent<WorldItem>().Configure(weaponItemId, ammo);
+        WorldItemUtility.SnapToGround(netObj.gameObject, dropPos.y);
         netObj.Spawn();
 
         // gemideysek gemiye parentlanmazsa gemi yol alinca silah olduğu yerde kalir

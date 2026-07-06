@@ -34,7 +34,7 @@ public class Island : MonoBehaviour
         float halfZ = bounds.extents.z * spawnAreaScale;
         float x = bounds.center.x + Random.Range(-halfX, halfX);
         float z = bounds.center.z + Random.Range(-halfZ, halfZ);
-        return new Vector3(x, bounds.max.y, z);
+        return new Vector3(x, bounds.max.y + 0.75f, z);
     }
 
     private void OnEnable()
