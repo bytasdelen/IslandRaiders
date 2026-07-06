@@ -16,6 +16,12 @@ public class ShipRandomizer : NetworkBehaviour
 
     private bool hasRolled;
 
+    // kayittan yuklenen gemilerde rastgele uretimi engeller (sandik/mürettebat kayittan gelir)
+    public void Suppress()
+    {
+        hasRolled = true;
+    }
+
     private void Update()
     {
         if (!IsServer || hasRolled)
@@ -60,12 +66,32 @@ public class ShipRandomizer : NetworkBehaviour
         for (int i = 0; i < count; i++)
         {
             WaypointNode spawnNode = allNodes[Random.Range(0, allNodes.Count)];
-            WaypointNode[] route = ShipPathfinder.BuildRandomPatrolRoute(spawnNode, Random.Range(4, patrolMaxWalkSteps));
-
-            CrewMember instance = Instantiate(crewPrefab, spawnNode.transform.position, spawnNode.transform.rotation);
-            instance.NetworkObject.Spawn();
-            instance.NetworkObject.TrySetParent(NetworkObject, true);
-            instance.SetPatrolRoute(route);
+            SpawnCrewAt(spawnNode.transform.position);
         }
+    }
+
+    // verilen dunya konumuna en yakin node'dan baslayan rastgele bir devriyeyle mürettebat olusturur.
+    // hem rastgele uretim hem kayittan geri yukleme bunu kullanir.
+    public CrewMember SpawnCrewAt(Vector3 worldPosition)
+    {
+        if (crewPrefab == null || graphEntryNode == null)
+        {
+            return null;
+        }
+
+        List<WaypointNode> allNodes = ShipPathfinder.CollectReachable(graphEntryNode);
+        if (allNodes.Count == 0)
+        {
+            return null;
+        }
+
+        WaypointNode startNode = ShipPathfinder.FindNearest(allNodes, worldPosition);
+        WaypointNode[] route = ShipPathfinder.BuildRandomPatrolRoute(startNode, Random.Range(4, patrolMaxWalkSteps));
+
+        CrewMember instance = Instantiate(crewPrefab, startNode.transform.position, startNode.transform.rotation);
+        instance.NetworkObject.Spawn();
+        instance.NetworkObject.TrySetParent(NetworkObject, true);
+        instance.SetPatrolRoute(route);
+        return instance;
     }
 }

@@ -15,6 +15,16 @@ public class CrewMemberHealth : NetworkBehaviour, IDamageable
     private readonly NetworkVariable<bool> isDead = new NetworkVariable<bool>();
 
     public bool IsDead => isDead.Value;
+    public int CurrentHealth => currentHealth.Value;
+
+    // kayittan geri yuklerken mürettebatin canini ayarlar
+    public void SetHealth(int value)
+    {
+        if (IsServer)
+        {
+            currentHealth.Value = Mathf.Clamp(value, 1, maxHealth);
+        }
+    }
 
     public override void OnNetworkSpawn()
     {

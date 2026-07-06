@@ -3653,13 +3653,18 @@ MonoBehaviour:
   jumpForce: 6
   gravity: -9.81
   fallGravityMultiplier: 2.5
-  waterLevel: -1.2
+  waterLevel: -0.5
   swimSpeedMultiplier: 0.4
   swimAcceleration: 0.3
   buoyancy: 4
   floatDepth: 1.1
   swimStartDepth: 1.2
   swimStopDepth: 0.8
+  climbReach: 2
+  maxClimbHeight: 6
+  climbMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &4059573667319533659
 MonoBehaviour:
   m_ObjectHideFlags: 0

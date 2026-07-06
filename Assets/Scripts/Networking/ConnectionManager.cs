@@ -17,14 +17,34 @@ public class ConnectionManager : MonoBehaviour
 
     private void Awake()
     {
-        hostButton.onClick.AddListener(StartHost);
+        hostButton.onClick.AddListener(HostNewGame);
         joinButton.onClick.AddListener(StartClient);
     }
 
     private void OnDestroy()
     {
-        hostButton.onClick.RemoveListener(StartHost);
+        hostButton.onClick.RemoveListener(HostNewGame);
         joinButton.onClick.RemoveListener(StartClient);
+    }
+
+    // Host butonu: bos bir dunyayla baslar; girilen kullanici adi kaydin anahtari olur
+    public void HostNewGame()
+    {
+        SaveSystem.NewGame(nameInputField.text);
+        StartHost();
+    }
+
+    // menudeki bir kayit satirindan cagirilir: o dunyayi yukleyip host baslatir.
+    // isim alani kaydin sahibi isimle DOLDURULUR - SendPlayerName bunu gonderir, boylece baglanan
+    // isim kayittaki isimle birebir eslesir (aksi halde oyuncunun kendi verisi/konumu bulunamaz)
+    public void HostLoaded(string saveId)
+    {
+        SaveSystem.WorldSave save = SaveSystem.PrepareLoad(saveId);
+        if (save != null)
+        {
+            nameInputField.text = save.displayName;
+        }
+        StartHost();
     }
 
     private void StartHost()

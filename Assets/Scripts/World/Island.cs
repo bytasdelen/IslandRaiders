@@ -6,15 +6,35 @@ public class Island : MonoBehaviour
 {
     [SerializeField] private Transform[] dockPoints;    // gemilerin yanasacagi noktalar
     [SerializeField] private float approachMargin = 20f; // yaklasma noktasi dock halkasindan bu kadar açıkta olur
+    // collider kutusu adanin gercek (duzensiz) seklinden genis oldugu icin spawn alanini merkeze dogru daraltir (1 = tum kutu, 0.5 = yarisi)
+    [SerializeField] [Range(0.1f, 1f)] private float spawnAreaScale = 0.5f;
 
     private static readonly List<Island> all = new List<Island>();
     public static IReadOnlyList<Island> All => all;
 
     private AIShipController[] occupants;
+    private Collider islandCollider;
 
     private void Awake()
     {
         occupants = new AIShipController[dockPoints.Length];
+        islandCollider = GetComponent<Collider>();
+    }
+
+    // adanın kendi collider sınırları içinde rastgele bir yüzey noktası (silah/sandık spawn'ı için)
+    public Vector3 RandomSurfacePoint()
+    {
+        if (islandCollider == null)
+        {
+            return transform.position;
+        }
+
+        Bounds bounds = islandCollider.bounds;
+        float halfX = bounds.extents.x * spawnAreaScale;
+        float halfZ = bounds.extents.z * spawnAreaScale;
+        float x = bounds.center.x + Random.Range(-halfX, halfX);
+        float z = bounds.center.z + Random.Range(-halfZ, halfZ);
+        return new Vector3(x, bounds.max.y, z);
     }
 
     private void OnEnable()

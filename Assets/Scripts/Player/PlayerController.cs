@@ -27,9 +27,14 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float buoyancy = 4f;
     // ayaktan ölçülen, karakterin sakin haldeyken oturduğu su derinligi (düşük değer = daha yüksekte yüzer)
     [SerializeField] private float floatDepth = 1.1f;
-    // yüzmeye başlama/bitme eşikleri arasındaki fark 
+    // yüzmeye başlama/bitme eşikleri arasındaki fark
     [SerializeField] private float swimStartDepth = 1.3f;
     [SerializeField] private float swimStopDepth = 0.8f;
+
+    [Header("Climbing")]
+    // yuzerken bakilan yondeki gemi guvertesine ya da ada kiyisina Space ile cikmak icin
+    [SerializeField] private float climbReach = 1.6f;      // bakis yonunde govdenin ne kadar onune uzanip kenar aranir
+    [SerializeField] private float maxClimbHeight = 2.5f;  // ayaklardan en fazla bu kadar yukaridaki yuzeye cikilir
 
     private CharacterController characterController;
     private InputAction moveAction;
@@ -69,12 +74,63 @@ public class PlayerController : NetworkBehaviour
 
         if (isSwimming)
         {
+            // yuzerken kenara bakip Space'e basinca yukari tirman; cikilacak yer yoksa normal yuzme
+            if (jumpAction.WasPressedThisFrame() && TryClimbOut())
+            {
+                return;
+            }
             SwimMovement();
         }
         else
         {
             GroundMovement();
         }
+    }
+
+    // bakis yonundeki yakin bir gemi guvertesine / ada kiyisina cikmayi dener, basarirsa true doner
+    private bool TryClimbOut()
+    {
+        Vector3 forward = lookPivot != null ? lookPivot.forward : transform.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude < 0.001f)
+        {
+            return false;
+        }
+        forward.Normalize();
+
+        float feetY = transform.position.y + characterController.center.y - characterController.height * 0.5f;
+
+        // govdenin biraz onunde, tirmanma tepesinden asagi isin at; ustune basilacak yuzeyi ara
+        Vector3 probeTop = transform.position + forward * climbReach;
+        probeTop.y = feetY + maxClimbHeight;
+
+        if (!Physics.Raycast(probeTop, Vector3.down, out RaycastHit hit, maxClimbHeight, ~0, QueryTriggerInteraction.Ignore))
+        {
+            return false;
+        }
+
+        // sadece gemi ya da adaya cikilir; yuzey ayaklardan yukarida ve yurunebilir egimde olmali
+        bool boardable = hit.collider.GetComponentInParent<IShipDeck>() != null
+                      || hit.collider.GetComponentInParent<Island>() != null;
+        if (!boardable || hit.point.y < feetY - 0.2f || Vector3.Dot(hit.normal, Vector3.up) < 0.5f)
+        {
+            return false;
+        }
+
+        // ayaklari bulunan yuzeyin ustune oturt, kenardan biraz iceri kaydir
+        float bodyOffset = characterController.height * 0.5f - characterController.center.y + characterController.skinWidth;
+        Vector3 landing = hit.point + forward * 0.2f;
+        landing.y = hit.point.y + bodyOffset;
+
+        characterController.enabled = false;
+        transform.position = landing;
+        characterController.enabled = true;
+
+        isSwimming = false;
+        verticalVelocity = 0f;
+        currentVelocity = Vector3.zero;
+        velocitySmoothDamp = Vector3.zero;
+        return true;
     }
 
     // ayaklarin ne kadar suya girdiğine göre yüzme moduna geç/çık, esikler arasi bosluk histerezis sağlar
@@ -93,7 +149,7 @@ public class PlayerController : NetworkBehaviour
         if (!isSwimming && submersion > swimStartDepth)
         {
             isSwimming = true;
-            // suya girerken birikmis dusme hizini sifirl�yoruz ki dibe cakilmasin
+            // suya girerken birikmis dusme hizini sifirl�yoruz ki dibe cakilmasin
             verticalVelocity = 0f;
         }
         else if (isSwimming && submersion < swimStopDepth)

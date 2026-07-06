@@ -24,7 +24,7 @@ MonoBehaviour:
     WorldPrefab: {fileID: 8652586064697401862, guid: fa2d124378943364996bd13b61c12f11, type: 3}
     IsChest: 0
   - DisplayName: Chest
-    Icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+    Icon: {fileID: 21300000, guid: 3d4586e1b51eb0143aaff700ec47583d, type: 3}
     HeldPrefab: {fileID: 2910514411597174143, guid: 97c2d390077b63349b303fd56cdd3e4e, type: 3}
     WorldPrefab: {fileID: 2910514411597174143, guid: c5a23d25f4dd43846b2f04b269f7137e, type: 3}
     IsChest: 1
